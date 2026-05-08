@@ -1,113 +1,197 @@
-import os
-import time
-import json
-import httpx
+import os, time, json, httpx
 from pathlib import Path
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 import uvicorn
 
 app = FastAPI()
 
-# ── CREDENTIALS (set these in HF Secrets or Render/Railway env vars) ─────────
-CLIENT_ID     = os.environ["CLIENT_ID"]
-CLIENT_SECRET = os.environ["CLIENT_SECRET"]
-REFRESH_TOKEN = os.environ["REFRESH_TOKEN"]
+# ── DRIVE STORE (persisted to drives.json) ────────────────────────────────────
+DRIVES_FILE = Path("drives.json")
+_drives: list[dict] = []          # [{id, name, client_id, client_secret, refresh_token}]
+_token_cache: dict[str, dict] = {}  # {drive_id: {token, expiry}}
 
-# ── TOKEN CACHE ───────────────────────────────────────────────────────────────
-_token_cache = {"token": None, "expiry": 0}
+def load_drives():
+    global _drives
+    if DRIVES_FILE.exists():
+        try:
+            _drives = json.loads(DRIVES_FILE.read_text())
+        except:
+            _drives = []
+    # Also load from env for default drive
+    cid = os.environ.get("CLIENT_ID")
+    cs  = os.environ.get("CLIENT_SECRET")
+    rt  = os.environ.get("REFRESH_TOKEN")
+    if cid and cs and rt:
+        exists = any(d["client_id"] == cid for d in _drives)
+        if not exists:
+            _drives.insert(0, {
+                "id": "env-drive",
+                "name": "My Drive (default)",
+                "client_id": cid,
+                "client_secret": cs,
+                "refresh_token": rt,
+            })
 
-async def get_access_token() -> str:
-    if _token_cache["token"] and time.time() < _token_cache["expiry"]:
-        return _token_cache["token"]
+def save_drives():
+    # Don't save the env drive
+    to_save = [d for d in _drives if d["id"] != "env-drive"]
+    DRIVES_FILE.write_text(json.dumps(to_save, indent=2))
+
+load_drives()
+
+# ── TOKEN REFRESH ─────────────────────────────────────────────────────────────
+async def get_token(drive_id: str) -> str:
+    cache = _token_cache.get(drive_id, {})
+    if cache.get("token") and time.time() < cache.get("expiry", 0):
+        return cache["token"]
+    drive = next((d for d in _drives if d["id"] == drive_id), None)
+    if not drive:
+        raise Exception(f"Drive '{drive_id}' not found")
     async with httpx.AsyncClient() as client:
         r = await client.post("https://oauth2.googleapis.com/token", data={
-            "client_id":     CLIENT_ID,
-            "client_secret": CLIENT_SECRET,
-            "refresh_token": REFRESH_TOKEN,
+            "client_id":     drive["client_id"],
+            "client_secret": drive["client_secret"],
+            "refresh_token": drive["refresh_token"],
             "grant_type":    "refresh_token",
         })
         d = r.json()
         if "error" in d:
             raise Exception(d.get("error_description", d["error"]))
-        _token_cache["token"]  = d["access_token"]
-        _token_cache["expiry"] = time.time() + d.get("expires_in", 3600) - 60
-        print(f"[TOKEN] Refreshed OK")
-        return _token_cache["token"]
+        _token_cache[drive_id] = {
+            "token":  d["access_token"],
+            "expiry": time.time() + d.get("expires_in", 3600) - 60,
+        }
+        return d["access_token"]
 
-CORS_HEADERS = {
-    "Access-Control-Allow-Origin":  "*",
-    "Access-Control-Allow-Headers": "*",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-}
+CORS = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*"}
 
-# ── /token ────────────────────────────────────────────────────────────────────
-@app.get("/token")
-async def token_endpoint():
+# ── DRIVES API ────────────────────────────────────────────────────────────────
+class DriveIn(BaseModel):
+    name: str
+    client_id: str
+    client_secret: str
+    refresh_token: str
+
+@app.get("/drives")
+async def list_drives():
+    safe = [{"id": d["id"], "name": d["name"]} for d in _drives]
+    return JSONResponse(safe, headers=CORS)
+
+@app.post("/drives")
+async def add_drive(body: DriveIn):
+    import uuid
+    drive_id = str(uuid.uuid4())[:8]
+    drive = {"id": drive_id, "name": body.name, "client_id": body.client_id,
+             "client_secret": body.client_secret, "refresh_token": body.refresh_token}
+    # Validate token before saving
     try:
-        tok = await get_access_token()
-        return JSONResponse({"access_token": tok}, headers=CORS_HEADERS)
+        _drives.append(drive)
+        await get_token(drive_id)
+        save_drives()
+        return JSONResponse({"id": drive_id, "name": body.name}, headers=CORS)
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500, headers=CORS_HEADERS)
+        _drives.remove(drive)
+        return JSONResponse({"error": str(e)}, status_code=400, headers=CORS)
 
-# ── /api/* (proxy to Google Drive API) ───────────────────────────────────────
-@app.get("/api/{path:path}")
-async def api_proxy(path: str, request: Request):
+@app.delete("/drives/{drive_id}")
+async def delete_drive(drive_id: str):
+    global _drives
+    _drives = [d for d in _drives if d["id"] != drive_id]
+    _token_cache.pop(drive_id, None)
+    save_drives()
+    return JSONResponse({"ok": True}, headers=CORS)
+
+# ── TOKEN ENDPOINT ────────────────────────────────────────────────────────────
+@app.get("/token/{drive_id}")
+async def token_ep(drive_id: str):
     try:
-        token   = await get_access_token()
+        tok = await get_token(drive_id)
+        return JSONResponse({"access_token": tok}, headers=CORS)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400, headers=CORS)
+
+# ── DRIVE API PROXY ───────────────────────────────────────────────────────────
+@app.get("/api/{drive_id}/{path:path}")
+async def api_proxy(drive_id: str, path: str, request: Request):
+    try:
+        token   = await get_token(drive_id)
         api_url = f"https://www.googleapis.com/{path}"
         if request.query_params:
             api_url += "?" + str(request.query_params)
         async with httpx.AsyncClient() as client:
             r = await client.get(api_url, headers={"Authorization": f"Bearer {token}"})
-        return Response(
-            content=r.content,
-            status_code=r.status_code,
-            media_type=r.headers.get("content-type", "application/json"),
-            headers=CORS_HEADERS,
-        )
+        return Response(content=r.content, status_code=r.status_code,
+                        media_type=r.headers.get("content-type", "application/json"),
+                        headers=CORS)
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500, headers=CORS_HEADERS)
+        return JSONResponse({"error": str(e)}, status_code=500, headers=CORS)
 
-# ── /stream & /download (proxy file from Drive) ───────────────────────────────
+@app.get("/ping/{drive_id}")
+async def ping_drive(drive_id: str):
+    start = time.time()
+    try:
+        token = await get_token(drive_id)
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get("https://www.googleapis.com/drive/v3/about?fields=user", headers={"Authorization": f"Bearer {token}"})
+        ms = int((time.time() - start) * 1000)
+        return JSONResponse({"ms": ms, "status": "ok" if r.status_code == 200 else "error"}, headers=CORS)
+    except Exception as e:
+        ms = int((time.time() - start) * 1000)
+        return JSONResponse({"ms": ms, "status": "error", "error": str(e)}, status_code=500, headers=CORS)
+
+# ── STREAM / DOWNLOAD ─────────────────────────────────────────────────────────
 @app.get("/stream")
 @app.get("/download")
-async def stream_file(request: Request, id: str, name: str = "file"):
-    is_download = request.url.path == "/download"
+async def stream_file(request: Request, drive_id: str, id: str, name: str = "file"):
+    is_dl = request.url.path == "/download"
     try:
-        token   = await get_access_token()
+        token   = await get_token(drive_id)
         api_url = f"https://www.googleapis.com/drive/v3/files/{id}?alt=media"
-        headers = {"Authorization": f"Bearer {token}"}
-        range_h = request.headers.get("range")
-        if range_h:
-            headers["Range"] = range_h
+        hdrs    = {"Authorization": f"Bearer {token}"}
+        rng     = request.headers.get("range")
+        if rng: hdrs["Range"] = rng
 
-        async def stream_gen():
-            async with httpx.AsyncClient(timeout=None) as client:
-                async with client.stream("GET", api_url, headers=headers) as r:
-                    async for chunk in r.aiter_bytes(65536):
-                        yield chunk
+        client = httpx.AsyncClient(timeout=None)
+        req = client.build_request("GET", api_url, headers=hdrs)
+        r = await client.send(req, stream=True)
 
-        resp_headers = {**CORS_HEADERS, "Accept-Ranges": "bytes"}
-        if is_download:
-            resp_headers["Content-Disposition"] = f'attachment; filename="{name}"'
+        async def gen():
+            try:
+                async for chunk in r.aiter_bytes(65536):
+                    yield chunk
+            finally:
+                await r.aclose()
+                await client.aclose()
 
-        return StreamingResponse(
-            stream_gen(),
-            status_code=206 if range_h else 200,
-            headers=resp_headers,
-            media_type="application/octet-stream",
-        )
+        resp_h = {**CORS, "Accept-Ranges": "bytes"}
+        ct = r.headers.get("content-type", "application/octet-stream")
+        
+        if "content-length" in r.headers:
+            resp_h["Content-Length"] = r.headers["content-length"]
+        if "content-range" in r.headers:
+            resp_h["Content-Range"] = r.headers["content-range"]
+
+        if is_dl:
+            resp_h["Content-Disposition"] = f'attachment; filename="{name}"'
+        else:
+            resp_h["Content-Disposition"] = f'inline; filename="{name}"'
+
+        return StreamingResponse(gen(), status_code=r.status_code,
+                                 headers=resp_h, media_type=ct)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
-# ── / → serve preview.html ────────────────────────────────────────────────────
+# ── SERVE FRONTEND ────────────────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 @app.get("/preview.html", response_class=HTMLResponse)
 async def index():
-    html = Path("preview.html").read_text(encoding="utf-8")
-    return HTMLResponse(html)
+    return HTMLResponse(Path("preview.html").read_text(encoding="utf-8"))
+
+@app.options("/{rest:path}")
+async def options_handler():
+    return Response(headers={**CORS, "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS"})
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=7860, reload=False)
