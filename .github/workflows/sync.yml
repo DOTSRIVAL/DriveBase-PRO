@@ -10,9 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-          lfs: true
-      - name: Push to hub
+          fetch-depth: 1
+          
+      - name: Push ONLY Required Files to Hub
         env:
           HF_TOKEN: ${{ secrets.HF_SPACE_DOTSRIVAL_TOKEN }}
-        run: git push --force https://DOTSRIVAL:$HF_TOKEN@huggingface.co/spaces/DOTSRIVAL/reclone main
+        run: |
+          mkdir /tmp/deploy
+          # App run aaga thevayana 4 files ah mattum copy pandrom
+          cp app.py preview.html Dockerfile requirements.txt /tmp/deploy/
+          cd /tmp/deploy
+          git init
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add .
+          git commit -m "Deploy to Hugging Face"
+          # Palaya history ah ellam vitutu clean ah pudhusa push pandrom
+          git push --force https://DOTSRIVAL:$HF_TOKEN@huggingface.co/spaces/DOTSRIVAL/reclone master:main
