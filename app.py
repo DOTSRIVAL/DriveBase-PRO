@@ -38,6 +38,23 @@ def save_drives():
     # Don't save the env drive
     to_save = [d for d in _drives if d["id"] != "env-drive"]
     DRIVES_FILE.write_text(json.dumps(to_save, indent=2))
+    
+    # Auto-sync to Hugging Face Space if running on HF
+    hf_token = os.environ.get("HF_TOKEN")
+    space_id = os.environ.get("SPACE_ID")
+    if hf_token and space_id:
+        try:
+            from huggingface_hub import HfApi
+            api = HfApi(token=hf_token)
+            api.upload_file(
+                path_or_fileobj=str(DRIVES_FILE),
+                path_in_repo="drives.json",
+                repo_id=space_id,
+                repo_type="space"
+            )
+            print("Successfully synced drives.json to Hugging Face Space")
+        except Exception as e:
+            print("Failed to sync drives.json to HF Space:", e)
 
 load_drives()
 
