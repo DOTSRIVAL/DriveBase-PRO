@@ -3,12 +3,12 @@ const authConfig = {
   "siteIcon": "https://raw.githubusercontent.com/cheems/goindex-extended/master/images/favicon-x.png", //or fevicon-x-light.png
   "version": "1.4.1", // VersionControl, do not modify manually
   // client_id & client_secret - PLEASE USE YOUR OWN!
-  "client_id": "808783209433-b4tr5r8giph7u8nl5umgdjuhskpsea6a.apps.googleusercontent.com", // Client ID
-  "client_secret": "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", // Client Secret
-  "refresh_token": "1//0g615B_vz6ftLCgYIARAAGBASNwF-L9IretRCFrQ4pHVkzpQ_rnPOcgnyEuMHfShRbpSyjDdHdMQ8kDYXzcmJASusssSk1rFX0sk", // Refresh Token
+  "client_id": "", // Client ID
+  "client_secret": "", // Client Secret
+  "refresh_token": "", // Refresh Token
   "folder_list_url": "", // Folder Id List(Only if you have any folders in roots) - Sample: https://cdn.jsdelivr.net/gh/cheems/goindex-extended@master/sample-files/sample-folder-id-list.txt
   // Crypt Secret must be 32 characters long - Sample: "1234567890123456abcdefghIJKLMN!*" | don't use these characters (\,/,",') 
-  "crypt_secret": "DOTSRIVAL1247DOTSRIVAL1247DOTSRI", // Crypt Secret (Required)* This is used to encrypt file ids
+  "crypt_secret": "1234567890123456abcdefghIJKLMN!*", // Crypt Secret (Required)* This is used to encrypt file ids
   /**
     * Set up multiple Drives to be displayed; add multiples by format
     * [id]: It can be team folder id, subfolder id, or "root" (representing the root directory of personal disk);
