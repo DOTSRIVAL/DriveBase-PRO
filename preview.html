@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GoIndex Extended — Live Preview</title>
+<script>
+// If opened as file://, redirect to localhost server
+if (location.protocol === 'file:') {
+  location.href = 'http://localhost:5600/preview.html';
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#121212;--surface:#1e1e1e;--surface2:#2a2a2a;--surface3:#333;
+  --text:#e0e0e0;--text2:#9e9e9e;--divider:#2e2e2e;
+  --primary:#37474f;--accent:#5e92f3;
+  --folder:#ffa726;--video:#ef5350;--audio:#66bb6a;
+  --image:#ab47bc;--doc:#42a5f5;--pdf:#ef5350;--other:#78909c;
+}
+body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+/* TOPBAR */
+.topbar{background:#263238;display:flex;align-items:center;padding:0 16px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px #0006}
+.topbar .logo{display:flex;align-items:center;gap:8px;flex:1}
+.topbar .logo img{width:28px;border-radius:50%}
+.topbar .logo h1{font-size:1rem;font-weight:500;color:#fff}
+.topbar .version{font-size:.7rem;background:#37474f;color:#b0bec5;padding:2px 8px;border-radius:10px}
+.topbar input{background:rgba(255,255,255,.1);border:none;border-radius:4px;color:#fff;padding:6px 12px;width:240px;font-size:.9rem;outline:none;transition:.2s;margin-left:auto}
+.topbar input::placeholder{color:rgba(255,255,255,.4)}
+.topbar input:focus{background:rgba(255,255,255,.18);width:300px}
+/* DRIVE TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--divider)}
+.tab{padding:12px 20px;font-size:.85rem;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.tab .material-icons{font-size:16px}
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:4px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--divider);font-size:.84rem;flex-wrap:wrap}
+.bc-item{color:var(--text2);cursor:pointer;padding:2px 4px;border-radius:2px;transition:.15s}
+.bc-item:hover{color:var(--text)}
+.bc-item.active{color:var(--text);cursor:default}
+.bc-sep{color:var(--divider)}
+/* STATS */
+.stats{display:flex;gap:16px;padding:6px 16px;background:var(--surface2);border-bottom:1px solid var(--divider);font-size:.78rem;color:var(--text2)}
+.stats strong{color:var(--text)}
+/* FILE LIST */
+.list-header{display:grid;grid-template-columns:1fr 100px 170px;padding:8px 16px;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);border-bottom:1px solid var(--divider);background:var(--surface2)}
+.list{background:var(--surface)}
+.list-row{display:grid;grid-template-columns:1fr 100px 170px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--divider);cursor:pointer;transition:.12s}
+.list-row:hover{background:var(--surface2)}
+.list-row:hover .actions{opacity:1}
+.name{display:flex;align-items:center;gap:10px;min-width:0}
+.name .material-icons{font-size:22px;flex-shrink:0}
+.name span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9rem}
+.size,.date{font-size:.8rem;color:var(--text2)}
+.actions{opacity:0;display:flex;gap:2px;margin-left:6px;transition:.15s}
+.actions .material-icons{font-size:17px;color:var(--text2);padding:4px;border-radius:50%}
+.actions .material-icons:hover{background:var(--surface3);color:var(--text)}
+/* STATE */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 16px;gap:14px;color:var(--text2);text-align:center}
+.spinner{width:36px;height:36px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:#b71c1c22;border:1px solid #b71c1c55;border-radius:6px;padding:14px 18px;max-width:500px;font-size:.85rem;color:#ef9a9a;line-height:1.6}
+/* FOOTER */
+footer{text-align:center;padding:18px;font-size:.75rem;color:var(--text2);border-top:1px solid var(--divider);margin-top:auto}
+footer a{color:var(--accent);text-decoration:none}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+@media(max-width:640px){
+  .list-header,.list-row{grid-template-columns:1fr 80px}
+  .list-header span:last-child,.date{display:none}
+  .topbar input{width:130px}.topbar input:focus{width:160px}
+}
+/* FILE PANEL */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;backdrop-filter:blur(2px)}
+.panel-overlay.open{display:block}
+.panel{position:fixed;right:0;top:0;height:100vh;width:420px;max-width:95vw;background:var(--surface);z-index:301;transform:translateX(100%);transition:.3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-4px 0 24px #0008}
+.panel.open{transform:translateX(0)}
+.panel-head{background:#263238;padding:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--divider)}
+.panel-head h3{font-size:.9rem;color:#fff;font-weight:500;word-break:break-word;line-height:1.4}
+.panel-close{color:rgba(255,255,255,.7);cursor:pointer;font-size:20px;flex-shrink:0;margin-top:2px;transition:.15s}
+.panel-close:hover{color:#fff}
+.panel-body{padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px}
+.panel-meta{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.82rem;background:var(--surface2);border-radius:6px;padding:12px}
+.panel-meta .lbl{color:var(--text2)}
+.panel-meta .val{color:var(--text);word-break:break-all}
+.link-block{background:var(--surface2);border-radius:6px;overflow:hidden;border:1px solid var(--divider)}
+.link-block-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface3);font-size:.8rem;font-weight:500;color:var(--text)}
+.link-block-head .material-icons{font-size:18px}
+.link-block-head.stream{color:#66bb6a}
+.link-block-head.download{color:#42a5f5}
+.link-box{display:flex;align-items:center;gap:6px;padding:8px 10px}
+.link-url{flex:1;font-size:.72rem;color:var(--text2);word-break:break-all;font-family:monospace;background:var(--surface);border-radius:4px;padding:6px 8px;border:1px solid var(--divider);max-height:60px;overflow:auto}
+.copy-btn{background:var(--surface3);border:none;color:var(--text);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:.15s;flex-shrink:0}
+.copy-btn:hover{background:#455a64;color:#fff}
+.copy-btn .material-icons{font-size:15px}
+.copy-btn.copied{background:#2e7d32;color:#fff}
+.action-btns{display:flex;gap:8px;flex-wrap:wrap}
+.action-btn{flex:1;min-width:120px;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:6px;border:none;cursor:pointer;font-size:.85rem;font-weight:500;transition:.15s}
+.action-btn.stream-btn{background:linear-gradient(135deg,#2e7d32,#388e3c);color:#fff}
+.action-btn.stream-btn:hover{background:linear-gradient(135deg,#388e3c,#43a047)}
+.action-btn.dl-btn{background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff}
+.action-btn.dl-btn:hover{background:linear-gradient(135deg,#1976d2,#1e88e5)}
+.action-btn.drive-btn{background:var(--surface3);color:var(--text)}
+.action-btn.drive-btn:hover{background:#455a64;color:#fff}
+.action-btn .material-icons{font-size:18px}
+.warn-note{font-size:.73rem;color:var(--text2);background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.2);border-radius:4px;padding:8px 10px;line-height:1.5}
+.warn-note strong{color:#ffc107}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <img src="https://raw.githubusercontent.com/cheems/goindex-extended/master/images/favicon-x.png" alt="logo">
+    <h1>GoIndex Extended</h1>
+    <span class="version">v1.4.1</span>
+  </div>
+  <input id="searchBox" type="text" placeholder="🔍 Search files…" oninput="onSearch(this.value)">
+</header>
+
+<!-- DRIVE TABS -->
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="switchDrive(0)"><span class="material-icons">storage</span>Personal Drive</div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb" id="breadcrumb">
+  <span class="material-icons" style="font-size:15px;color:var(--text2)">home</span>
+  <span class="bc-item active">My Drive</span>
+</div>
+
+<!-- STATS -->
+<div class="stats" id="stats"><span>Loading…</span></div>
+
+<!-- LIST -->
+<div class="list-header">
+  <span>Name</span><span>Size</span><span>Modified</span>
+</div>
+<div class="list" id="list">
+  <div class="state"><div class="spinner"></div><span>Connecting to Google Drive…</span></div>
+</div>
+
+<!-- FILE PANEL -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="panel" id="filePanel">
+  <div class="panel-head">
+    <h3 id="panelTitle">File</h3>
+    <span class="material-icons panel-close" onclick="closePanel()">close</span>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<footer>
+  Powered by <a href="https://workers.cloudflare.com/" target="_blank">Cloudflare Workers</a> &amp;
+  <a href="https://www.google.com/drive/" target="_blank">Google Drive API</a> · Made with ❤
+</footer>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+// Auth is handled by the proxy server (app.py / server.py)
+const FOLDER_MIME = 'application/vnd.google-apps.folder';
+// Auto-detect: empty = same origin (HF Spaces), or localhost:5600 for local dev
+const PROXY = location.hostname === 'localhost' ? 'http://localhost:5600' : '';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let accessToken = null;
+let tokenExpiry = 0;
+let navStack = [];
+let allFiles = [];
+
+// ── AUTH (via local proxy /token) ─────────────────────────────────────────────
+async function getToken() {
+  if (accessToken && Date.now() < tokenExpiry) return accessToken;
+  try {
+    const r = await fetch(`${PROXY}/token`);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    accessToken = d.access_token;
+    tokenExpiry = Date.now() + 50 * 60 * 1000; // ~50 min
+    return accessToken;
+  } catch(e) {
+    showError('Auth failed: ' + e.message + '<br>Make sure <strong>server.py</strong> is running!');
+    throw e;
+  }
+}
+
+// ── API (all via proxy) ────────────────────────────────────────────────────────────
+async function apiGet(path, queryParams) {
+  // All Google Drive API calls go through our local proxy /api
+  const params = new URLSearchParams(queryParams || {});
+  const url = `${PROXY}/api${path}${params.toString() ? '?' + params : ''}`;
+  const r = await fetch(url);
+  if (!r.ok) {
+    const d = await r.json().catch(()=>({}));
+    throw new Error((d.error && d.error.message) || r.statusText);
+  }
+  return r.json();
+}
+
+async function listFolder(folderId) {
+  showLoading('Loading files…');
+  try {
+    const data = await apiGet('/drive/v3/files', {
+      q: `'${folderId}' in parents and trashed=false`,
+      orderBy: 'folder,name',
+      pageSize: '500',
+      fields: 'files(id,name,mimeType,size,modifiedTime)'
+    });
+    allFiles = data.files || [];
+    renderFiles(allFiles);
+    updateStats(allFiles);
+  } catch(e) {
+    showError('Failed to list folder: ' + e.message);
+  }
+}
+
+async function listRoot() {
+  try {
+    const data = await apiGet('/drive/v3/files/root', {fields:'id,name'});
+    navStack = [{id: data.id, name: 'My Drive'}];
+    renderBreadcrumb();
+    await listFolder(data.id);
+  } catch(e) {
+    showError('Failed to connect: ' + e.message);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+const iconMap = {
+  [FOLDER_MIME]: {icon:'folder',color:'var(--folder)'},
+  'video/mp4':   {icon:'videocam',color:'var(--video)'},
+  'video/x-matroska':{icon:'videocam',color:'var(--video)'},
+  'video/':      {icon:'videocam',color:'var(--video)'},
+  'audio/':      {icon:'audiotrack',color:'var(--audio)'},
+  'image/':      {icon:'image',color:'var(--image)'},
+  'application/pdf':{icon:'picture_as_pdf',color:'var(--pdf)'},
+  'application/vnd.openxmlformats-officedocument':{icon:'description',color:'var(--doc)'},
+  'application/vnd.google-apps.document':{icon:'description',color:'var(--doc)'},
+  'application/vnd.google-apps.spreadsheet':{icon:'table_chart',color:'var(--audio)'},
+  'application/vnd.google-apps.presentation':{icon:'slideshow',color:'var(--folder)'},
+  'application/zip':{icon:'folder_zip',color:'var(--folder)'},
+  'text/':       {icon:'article',color:'var(--other)'},
+};
+
+function getIcon(mime) {
+  if (!mime) return {icon:'insert_drive_file',color:'var(--other)'};
+  if (mime === FOLDER_MIME) return iconMap[FOLDER_MIME];
+  for (const [k,v] of Object.entries(iconMap)) {
+    if (k !== FOLDER_MIME && mime.startsWith(k)) return v;
+  }
+  return {icon:'insert_drive_file',color:'var(--other)'};
+}
+
+function fmtSize(bytes) {
+  if (!bytes || bytes === '0') return '—';
+  const b = parseInt(bytes);
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+}
+
+function renderFiles(files) {
+  const el = document.getElementById('list');
+  if (!files.length) {
+    el.innerHTML = '<div class="state"><span class="material-icons" style="font-size:48px;color:var(--surface3)">folder_open</span><span>This folder is empty</span></div>';
+    return;
+  }
+  el.innerHTML = files.map((f,i) => {
+    const ic = getIcon(f.mimeType);
+    const isFolder = f.mimeType === FOLDER_MIME;
+    return `<div class="list-row" onclick="onItem(${i})">
+      <div class="name">
+        <span class="material-icons" style="color:${ic.color}">${ic.icon}</span>
+        <span title="${f.name}">${f.name}</span>
+        <div class="actions">
+          ${!isFolder?`<span class="material-icons" title="Open in Drive" onclick="openDrive(event,'${f.id}')">open_in_new</span>`:''}
+        </div>
+      </div>
+      <div class="size">${isFolder?'—':fmtSize(f.size)}</div>
+      <div class="date">${fmtDate(f.modifiedTime)}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats(files) {
+  const folders = files.filter(f=>f.mimeType===FOLDER_MIME).length;
+  const filesCount = files.length - folders;
+  document.getElementById('stats').innerHTML =
+    `<span><strong>${files.length}</strong> items</span><span>·</span><span><strong>${folders}</strong> folders</span><span>·</span><span><strong>${filesCount}</strong> files</span>`;
+}
+
+function renderBreadcrumb() {
+  const el = document.getElementById('breadcrumb');
+  el.innerHTML = '<span class="material-icons" style="font-size:15px;color:var(--text2)">home</span>' +
+    navStack.map((n,i) => {
+      const isLast = i === navStack.length-1;
+      return (i>0?'<span class="bc-sep">/</span>':'')+
+        `<span class="bc-item${isLast?' active':''}" onclick="navTo(${i})">${n.name}</span>`;
+    }).join('');
+}
+
+// ── FILE PANEL ────────────────────────────────────────────────────────────────
+function openPanel(f) {
+  const streamUrl = `${PROXY}/stream?id=${f.id}&name=${encodeURIComponent(f.name)}`;
+  const dlUrl     = `${PROXY}/download?id=${f.id}&name=${encodeURIComponent(f.name)}`;
+  const isVideo   = f.mimeType && f.mimeType.startsWith('video/');
+  const isAudio   = f.mimeType && f.mimeType.startsWith('audio/');
+  const isMedia   = isVideo || isAudio;
+
+  document.getElementById('panelTitle').textContent = f.name;
+  document.getElementById('panelBody').innerHTML = `
+    <div class="panel-meta">
+      <span class="lbl">Size</span><span class="val">${fmtSize(f.size)}</span>
+      <span class="lbl">Modified</span><span class="val">${fmtDate(f.modifiedTime)}</span>
+      <span class="lbl">Type</span><span class="val">${f.mimeType||'—'}</span>
+    </div>
+    <div class="action-btns">
+      ${isMedia
+        ? `<button class="action-btn stream-btn" onclick="window.open('${streamUrl}','_blank')"><span class="material-icons">play_circle</span>Stream / Play</button>`
+        : `<button class="action-btn stream-btn" onclick="window.open('${streamUrl}','_blank')"><span class="material-icons">open_in_new</span>Open / Stream</button>`}
+      <a href="${dlUrl}" download="${f.name}" class="action-btn dl-btn" style="text-decoration:none"><span class="material-icons">download</span>Download</a>
+      <button class="action-btn drive-btn" onclick="window.open('https://drive.google.com/file/d/${f.id}/view','_blank')"><span class="material-icons">open_in_new</span>Google Drive</button>
+    </div>
+    <div class="link-block">
+      <div class="link-block-head stream"><span class="material-icons">stream</span>Streamable / Direct Link</div>
+      <div class="link-box">
+        <div class="link-url" id="streamUrlBox">${streamUrl}</div>
+        <button class="copy-btn" onclick="copyLink('streamUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
+      </div>
+    </div>
+    <div class="link-block">
+      <div class="link-block-head download"><span class="material-icons">download</span>Direct Download Link</div>
+      <div class="link-box">
+        <div class="link-url" id="dlUrlBox">${dlUrl}</div>
+        <button class="copy-btn" onclick="copyLink('dlUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
+      </div>
+    </div>
+    <div class="warn-note"><strong>✅ Proxy links:</strong> These work through your local server.py — no token expiry issues. Links are valid as long as server.py is running.</div>
+  `;
+  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('filePanel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.getElementById('filePanel').classList.remove('open');
+}
+
+function copyLink(elId, btn) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<span class="material-icons">check</span>Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<span class="material-icons">content_copy</span>Copy';
+    }, 2000);
+  });
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function onItem(i) {
+  const f = allFiles[i];
+  if (f.mimeType === FOLDER_MIME) {
+    navStack.push({id:f.id, name:f.name});
+    renderBreadcrumb();
+    listFolder(f.id);
+  } else {
+    openPanel(f);
+  }
+}
+
+function openDrive(e, id) {
+  e.stopPropagation();
+  window.open('https://drive.google.com/file/d/'+id+'/view','_blank');
+}
+
+function navTo(i) {
+  if (i === navStack.length-1) return;
+  navStack = navStack.slice(0,i+1);
+  renderBreadcrumb();
+  listFolder(navStack[navStack.length-1].id);
+}
+
+function switchDrive(n) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  navStack=[];
+  listRoot();
+}
+
+function onSearch(q) {
+  if (!q.trim()) { renderFiles(allFiles); updateStats(allFiles); return; }
+  const r = allFiles.filter(f=>f.name.toLowerCase().includes(q.toLowerCase()));
+  renderFiles(r); updateStats(r);
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function showLoading(msg='Loading…') {
+  document.getElementById('list').innerHTML =
+    `<div class="state"><div class="spinner"></div><span>${msg}</span></div>`;
+  document.getElementById('stats').innerHTML = '<span>Loading…</span>';
+}
+
+function showError(msg) {
+  document.getElementById('list').innerHTML =
+    `<div class="state"><span class="material-icons" style="font-size:40px;color:#ef5350">error_outline</span><div class="error-box">${msg}</div></div>`;
+  document.getElementById('stats').innerHTML = '<span style="color:#ef9a9a">Error loading data</span>';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+listRoot();
+</script>
+</body>
+</html>
