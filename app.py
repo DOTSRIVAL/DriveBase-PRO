@@ -95,6 +95,30 @@ async def add_drive(body: DriveIn):
         _drives.remove(drive)
         return JSONResponse({"error": str(e)}, status_code=400, headers=CORS)
 
+@app.put("/drives/{drive_id}")
+async def update_drive(drive_id: str, body: DriveIn):
+    if drive_id == "env-drive":
+        return JSONResponse({"error": "Cannot edit ENV default drive"}, status_code=400, headers=CORS)
+    
+    for d in _drives:
+        if d["id"] == drive_id:
+            old_drive = dict(d)
+            if body.name.strip(): d["name"] = body.name
+            if body.client_id.strip(): d["client_id"] = body.client_id
+            if body.client_secret.strip(): d["client_secret"] = body.client_secret
+            if body.refresh_token.strip(): d["refresh_token"] = body.refresh_token
+            
+            try:
+                _token_cache.pop(drive_id, None)
+                await get_token(drive_id)
+                save_drives()
+                return JSONResponse({"id": drive_id, "name": d["name"]}, headers=CORS)
+            except Exception as e:
+                d.update(old_drive)
+                _token_cache.pop(drive_id, None)
+                return JSONResponse({"error": str(e)}, status_code=400, headers=CORS)
+    return JSONResponse({"error": "Drive not found"}, status_code=404, headers=CORS)
+
 @app.delete("/drives/{drive_id}")
 async def delete_drive(drive_id: str):
     global _drives
