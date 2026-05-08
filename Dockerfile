@@ -1,16 +1,21 @@
 FROM python:3.11-slim
 
-WORKDIR /app
+# Hugging Face Spaces runs as a non-root user (UID 1000)
+# We need to set this up so app.py has permissions to write to drives.json
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
+
+WORKDIR $HOME/app
 
 # Install dependencies
-COPY requirements.txt .
+COPY --chown=user requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app files
-COPY app.py .
-COPY preview.html .
+# Copy all project files
+COPY --chown=user . .
 
-# HF Spaces uses port 7860
 EXPOSE 7860
 
 CMD ["python", "app.py"]
