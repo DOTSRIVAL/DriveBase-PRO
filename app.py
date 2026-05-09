@@ -287,7 +287,8 @@ async def stream_file(request: Request, drive_id: str, id: str, name: str = "fil
 
         async def gen():
             try:
-                async for chunk in r.aiter_bytes(65536):
+                # Increased chunk size to 2MB to maximize proxy download speeds
+                async for chunk in r.aiter_bytes(2097152):
                     yield chunk
             finally:
                 await r.aclose()
