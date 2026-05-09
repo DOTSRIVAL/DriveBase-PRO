@@ -172,6 +172,23 @@ async def get_token(drive_id: str) -> str:
 
 CORS = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*"}
 
+# ── GLOBAL SETTINGS ───────────────────────────────────────────────────────────
+_app_settings = {"chunk_size_mb": 2, "speed_limit_mb": 0}
+
+@app.get("/settings")
+async def get_settings():
+    return JSONResponse(_app_settings, headers=CORS)
+
+class SettingsIn(BaseModel):
+    chunk_size_mb: int
+    speed_limit_mb: float
+
+@app.post("/settings")
+async def update_settings(body: SettingsIn):
+    _app_settings["chunk_size_mb"] = max(1, body.chunk_size_mb)
+    _app_settings["speed_limit_mb"] = max(0.0, body.speed_limit_mb)
+    return JSONResponse(_app_settings, headers=CORS)
+
 # ── DRIVES API ────────────────────────────────────────────────────────────────
 class DriveIn(BaseModel):
     name: str
@@ -286,10 +303,22 @@ async def stream_file(request: Request, drive_id: str, id: str, name: str = "fil
         r = await client.send(req, stream=True)
 
         async def gen():
+            import asyncio
+            chunk_bytes = _app_settings.get("chunk_size_mb", 2) * 1024 * 1024
+            speed_limit = _app_settings.get("speed_limit_mb", 0) * 1024 * 1024
+            
             try:
-                # Increased chunk size to 2MB to maximize proxy download speeds
-                async for chunk in r.aiter_bytes(2097152):
+                start_time = time.time()
+                bytes_sent = 0
+                
+                async for chunk in r.aiter_bytes(chunk_bytes):
                     yield chunk
+                    if speed_limit > 0:
+                        bytes_sent += len(chunk)
+                        expected_time = bytes_sent / speed_limit
+                        elapsed_time = time.time() - start_time
+                        if elapsed_time < expected_time:
+                            await asyncio.sleep(expected_time - elapsed_time)
             finally:
                 await r.aclose()
                 await client.aclose()
