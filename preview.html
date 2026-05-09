@@ -98,6 +98,27 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 .btn-icon { padding: 6px; background: var(--surface3); border-radius: 4px; border: none; color: var(--text); cursor: pointer; display: grid; place-items: center; }
 .btn-icon:hover { background: #d32f2f; color: #fff; }
 .add-drive-form { background: var(--surface2); padding: 16px; border-radius: 6px; border: 1px solid var(--divider); display: none; flex-direction: column; gap: 12px; }
+
+/* RESPONSIVE DESIGN (MOBILE OPTIMIZATION) */
+@media (max-width: 768px) {
+  .topbar { flex-direction: column; gap: 12px; padding: 12px; align-items: flex-start; }
+  .top-actions { width: 100%; justify-content: space-between; }
+  .search-box input { width: 100%; }
+  .search-box input:focus { width: 100%; }
+  .search-box { flex: 1; }
+  
+  .list-header { grid-template-columns: 1fr 80px; gap: 10px; }
+  .list-header span:nth-child(3) { display: none; } /* Hide Modified Date on Mobile */
+  
+  .list-row { grid-template-columns: 1fr 80px; gap: 10px; padding: 10px 12px; }
+  .list-row .date { display: none; }
+  
+  .modal { width: 95vw; max-height: 95vh; }
+  .panel { width: 100%; }
+  
+  .overlay-controls { padding: 10px; }
+  .btn-icon .material-icons { font-size: 24px !important; }
+}
 .add-drive-form.open { display: flex; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group label { font-size: 0.8rem; color: var(--text2); }
