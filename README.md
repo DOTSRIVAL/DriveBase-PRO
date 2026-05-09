@@ -9,7 +9,7 @@
 
 ## 🌟 What is Drive Base PRO?
 
-Drive Base PRO is a completely rewritten, heavily optimized proxy engine for Google Drive. Originally inspired by GoIndex, this platform has been rebuilt from the ground up using **Asynchronous Python (aiohttp & FastAPI)** to act as a robust, high-performance streaming proxy.
+Drive Base PRO is a completely custom-built, heavily optimized proxy engine for Google Drive. Designed and engineered by **DOTSRIVAL**, this platform uses **Asynchronous Python (aiohttp & FastAPI)** to act as a robust, high-performance streaming proxy.
 
 It is specifically designed for **Anime/Movie websites, File Hosts, and heavy downloaders** who need to bypass Google Drive's strict *"Download Quota Exceeded"* and *"Automated Bot"* errors. 
 
@@ -80,7 +80,7 @@ Hugging Face isn't the only place you can host Drive Base PRO. Since this app is
    
 2. **Private VPS (Contabo, Hetzner, AWS, DigitalOcean):**
    - Buy a cheap Linux VPS (e.g., Ubuntu).
-   - Clone the repo: `git clone https://github.com/DOTSRIVAL/goindex-drive.git`
+   - Clone the repo: `git clone https://github.com/DOTSRIVAL/DriveBase-PRO.git`
    - Install Docker.
    - Run the app via Docker:
      ```bash
@@ -104,4 +104,4 @@ Hugging Face isn't the only place you can host Drive Base PRO. Since this app is
 This project is a powerful tool designed for personal backups and webmaster file management. Please ensure you comply with Google Drive's Terms of Service and applicable copyright laws when distributing content.
 
 ---
-**Author:** DotSrival | Tamil | Cheems (Original UI)
+**Author:** DOTSRIVAL
