@@ -289,10 +289,13 @@ async def login(body: LoginIn):
         return JSONResponse({"token": token, "username": ADMIN_USER, "role": "admin"}, headers=CORS)
     
     # Check Normal User
-    user = _users.get(body.username)
-    if user and user["password"] == body.password:
-        token = secrets.token_hex(16)
-        return JSONResponse({"token": token, "username": body.username, "role": user["role"]}, headers=CORS)
+    # Regular User Check
+    if body.username in _users:
+        if _users[body.username]["password"] == body.password:
+            token = secrets.token_hex(16)
+            role = _users[body.username]["role"]
+            display_name = _users[body.username].get("display_name", body.username)
+            return JSONResponse({"token": token, "username": body.username, "display_name": display_name, "role": role}, headers=CORS)
     
     return JSONResponse({"error": "Invalid credentials"}, status_code=401, headers=CORS)
 
