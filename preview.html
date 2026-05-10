@@ -871,7 +871,7 @@ function onSortChange(val) {
 function sortAndRender() {
   if (!allFiles || allFiles.length === 0) return renderFiles([]);
 
-  const sorted = [...allFiles].sort((a, b) => {
+  allFiles.sort((a, b) => {
     // 1. Folders always first
     const isFolderA = a.mimeType === FOLDER_MIME;
     const isFolderB = b.mimeType === FOLDER_MIME;
@@ -896,7 +896,7 @@ function sortAndRender() {
     return 0;
   });
 
-  renderFiles(sorted);
+  renderFiles(allFiles);
 }
 
 const iconMap = {
