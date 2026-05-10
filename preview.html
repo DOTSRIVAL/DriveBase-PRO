@@ -1116,7 +1116,7 @@ function playMedia(url, name, mimeType, index) {
 
   if (mimeType && mimeType.startsWith('video/')) {
     container.innerHTML = `
-      <video id="html5player" autoplay style="width:100%; max-height:75vh; outline:none; background:#000; cursor:pointer;" onclick="handleVideoClick()" ondblclick="handleVideoDblClick()">
+      <video id="html5player" autoplay style="width:100%; max-height:75vh; outline:none; background:#000; cursor:pointer;" ondblclick="handleVideoDblClick()">
         <source src="${url}" type="${mimeType}">
         Your browser does not support HTML5 video.
       </video>`;
