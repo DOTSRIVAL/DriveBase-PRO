@@ -297,6 +297,7 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
       <input type="text" id="searchInput" placeholder="Search files..." oninput="onSearch(this.value)">
     </div>
     <button class="settings-btn" id="settingsGear" style="display:none;" title="Settings" onclick="openSettings()"><span class="material-icons">settings</span></button>
+    <button class="settings-btn" id="headerLogoutBtn" style="display:none; color:#ef5350;" title="Logout" onclick="handleLogout()"><span class="material-icons">logout</span></button>
   </div>
 </div>
 
@@ -494,7 +495,6 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
           <div style="display: flex; gap: 12px; align-items: center;">
             <button class="btn-icon" onclick="cycleAspect()" title="Aspect Ratio"><span class="material-icons" id="aspectIcon" style="font-size:24px">aspect_ratio</span></button>
             <button class="btn-icon" onclick="toggleMute()" title="Mute"><span class="material-icons" id="muteBtnIcon" style="font-size:26px">volume_up</span></button>
-            <button class="btn-icon" onclick="toggleLock()" title="Lock Screen"><span class="material-icons" style="font-size:24px">lock_open</span></button>
             <button class="btn-icon" onclick="toggleFullscreen()" title="Fullscreen"><span class="material-icons" style="font-size:28px">fullscreen</span></button>
           </div>
         </div>
@@ -577,11 +577,13 @@ function completeLogin(user) {
   const authorEl = document.getElementById('headerAuthor');
   if(authorEl) authorEl.textContent = `Hi, ${user.display_name || user.username}`;
 
-  // Only show settings gear if Admin
+  // Admin vs Normal User UI
   if(user.role === 'admin') {
     document.getElementById('settingsGear').style.display = 'flex';
+    document.getElementById('headerLogoutBtn').style.display = 'none'; // Admin handles logout in settings
   } else {
     document.getElementById('settingsGear').style.display = 'none';
+    document.getElementById('headerLogoutBtn').style.display = 'flex'; // Normal users see logout in header
   }
 
   initApp();
