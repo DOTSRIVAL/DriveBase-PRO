@@ -341,17 +341,25 @@ async def delete_drive(drive_id: str, admin_pass: str = ""):
 async def list_files(drive_id: str, folder_id: str = "root"):
     try:
         token = await get_token(drive_id)
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             r = await client.get(
                 "https://www.googleapis.com/drive/v3/files",
-                params={"q": f"'{folder_id}' in parents and trashed=false",
-                        "fields": "files(id,name,mimeType,size,modifiedTime)",
-                        "pageSize": "1000", "supportsAllDrives": "true",
-                        "includeItemsFromAllDrives": "true"},
+                params={
+                    "q": f"'{folder_id}' in parents and trashed=false",
+                    "fields": "files(id,name,mimeType,size,modifiedTime)",
+                    "pageSize": "1000",
+                    "supportsAllDrives": "true",
+                    "includeItemsFromAllDrives": "true"
+                },
                 headers={"Authorization": f"Bearer {token}"}
             )
-            return JSONResponse(r.json(), headers=CORS)
+            data = r.json()
+            if r.status_code != 200:
+                error_msg = data.get("error", {}).get("message", "Google API Error")
+                return JSONResponse({"error": error_msg}, status_code=r.status_code, headers=CORS)
+            return JSONResponse(data, headers=CORS)
     except Exception as e:
+        print(f"[List] Error: {e}")
         return JSONResponse({"error": str(e)}, status_code=500, headers=CORS)
 
 # ── FILE STREAMING ────────────────────────────────────────────────────────────
