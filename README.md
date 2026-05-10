@@ -46,6 +46,20 @@ Drive Base PRO now features a complete user management system:
 
 ---
 
+## 🔐 Authentication & User Roles
+
+Drive Base PRO now features a complete user management system:
+
+- **Admin Gateway:** Configure `ADMIN_USER` and `ADMIN_PASS` in Hugging Face Secrets. 
+  - *Example:* `ADMIN_USER = admin@gmail.com`, `ADMIN_PASS = admin123`.
+  - Only the Admin can see and access the **Settings (⚙️)** gear icon.
+- **Guest Access:** Users can click "Continue as Guest" to browse files without creating an account.
+- **Normal Users:** Users can Register and Login. Their data is saved, but the **Settings icon is Hidden** to prevent unauthorized drive changes.
+- **Database Persistence:** All user credentials (username/password) are securely stored in your connected **NeonDB (Postgres) or MongoDB**.
+- **Logout Feature:** A dedicated Logout button is available at the top to securely end your session.
+
+---
+
 ## 📸 Screenshots
 
 <p align="center">
@@ -76,7 +90,6 @@ To ensure your connected Google Drives are never lost when Hugging Face restarts
 1. In your Hugging Face Space, click the **Settings** tab.
 2. Scroll down to **Variables and secrets**.
 3. Click **New secret**.
-   - **Name:** `DATABASE_URL`
    - **Name:** `DATABASE_URL`
    - **Value:** *(Paste your NeonDB or MongoDB URL here)*
 4. **(Optional) Add Admin Credentials:**
