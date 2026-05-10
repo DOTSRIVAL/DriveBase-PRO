@@ -744,20 +744,24 @@ async function deleteDrive(id) {
 // ── API HELPERS ──────────────────────────────────────────────────────
 async function apiGet(driveId, path, queryParams) {
   const params = new URLSearchParams(queryParams || {});
-  let url = `${PROXY}/list?drive_id=${driveId}`;
   
-  if (path.includes('root') && !path.includes('files/root')) {
-     // This is the old root path, we should use folder_id=root
-     url += `&folder_id=root`;
+  // Use /meta for file metadata (like root ID)
+  if (path.includes('files/') && !params.get('q')) {
+    const fileId = path.split('/').pop();
+    const r = await fetch(`${PROXY}/meta/${driveId}/${fileId}`);
+    const data = await r.json().catch(()=>({}));
+    if (!r.ok) throw new Error(data.error || "Metadata fetch failed");
+    return data;
+  }
+  
+  // Use /list for folder listing
+  let url = `${PROXY}/list?drive_id=${driveId}`;
+  const q = params.get('q');
+  if (q) {
+    const match = q.match(/'([^']+)' in parents/);
+    if (match) url += `&folder_id=${match[1]}`;
   } else {
-     // Check if we are listing a specific folder
-     const q = params.get('q');
-     if (q) {
-       const match = q.match(/'([^']+)' in parents/);
-       if (match) url += `&folder_id=${match[1]}`;
-     } else if (path.includes('files/root')) {
-       url += `&folder_id=root`;
-     }
+    url += `&folder_id=root`;
   }
 
   const r = await fetch(url);
