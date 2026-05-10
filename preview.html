@@ -325,9 +325,19 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
         <h3>Traffic & Speed Control</h3>
         <p style="color:var(--text2); font-size:0.85rem; margin-bottom:16px;">Set global limits to protect your server bandwidth.</p>
         <div class="form-group">
+          <label>Proxy Chunk Size (MB)</label>
+          <input type="number" id="inChunkSize" placeholder="2" value="2" min="1" max="100">
+          <span style="font-size:0.7rem; color:var(--text2);">Larger chunks increase max speed but use more RAM. (Default: 2MB)</span>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
           <label>Global Speed Limit (MB/s) - 0 for Unlimited</label>
           <input type="number" step="0.1" id="inSpeedLimit" value="0">
         </div>
+        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px; margin-top:12px;">
+          <input type="checkbox" id="inDirectMode" style="width:18px; height:18px; accent-color:var(--primary);">
+          <label for="inDirectMode" style="font-weight:bold;">Enable Direct Download (Max Speed)</label>
+        </div>
+        <p style="font-size:0.7rem; color:#ffb74d; margin-top:4px;">Warning: Direct mode connects directly to Google Drive. This gives Maximum Speed but skips proxy features.</p>
         <button class="btn btn-primary" style="margin-top:20px; width:100%;" onclick="saveGlobalSettings()">Apply/Save Settings</button>
       </div>
       
@@ -358,10 +368,6 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
             <label>Link Expiration Time (Hours)</label>
             <input type="number" id="inLinkExpiry" placeholder="0" value="0" min="0">
             <span style="font-size:0.7rem; color:var(--text2);">Set to 0 to make links never expire. If set to e.g. 2, links will only work for 2 hours after they are copied.</span>
-          </div>
-          <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
-            <input type="checkbox" id="inDirectMode" style="width:18px; height:18px; accent-color:var(--primary);">
-            <label for="inDirectMode" style="font-weight:bold;">Enable Direct Download (Max Speed)</label>
           </div>
           <div>
             <button class="btn btn-primary" onclick="saveGlobalSettings()">Save Security Settings</button>
