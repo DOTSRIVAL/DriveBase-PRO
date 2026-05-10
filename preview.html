@@ -32,13 +32,16 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 
 /* MAIN */
 .main { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.toolbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+.toolbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
 .breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.95rem; }
 .bc-item { cursor: pointer; color: var(--text2); transition: 0.2s; display: flex; align-items: center; gap: 4px; }
 .bc-item:hover { color: var(--text); }
 .bc-item.active { color: var(--text); font-weight: 500; pointer-events: none; }
 .bc-sep { color: var(--surface3); }
+.toolbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .stats { font-size: 0.85rem; color: var(--text2); display: flex; gap: 12px; }
+.sort-box { display: flex; align-items: center; gap: 6px; background: var(--surface2); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--divider); cursor: pointer; }
+.sort-box select { background: transparent; border: none; color: var(--text); font-size: 0.8rem; outline: none; cursor: pointer; font-family: inherit; }
 
 /* LIST */
 .list-header { display: grid; grid-template-columns: 1fr 100px 150px; gap: 16px; padding: 0 16px 8px; font-size: 0.75rem; font-weight: 500; color: var(--text2); border-bottom: 1px solid var(--divider); margin-bottom: 8px; }
@@ -253,7 +256,20 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
 <div class="main">
   <div class="toolbar">
     <div class="breadcrumb" id="breadcrumb"></div>
-    <div class="stats" id="stats"></div>
+    <div class="toolbar-right">
+      <div class="sort-box" title="Sort Files">
+        <span class="material-icons" style="font-size: 16px; color: var(--text2);">sort</span>
+        <select id="sortSelect" onchange="onSortChange(this.value)">
+          <option value="name_asc">Name (1-9, A-Z)</option>
+          <option value="name_desc">Name (Z-A, 9-1)</option>
+          <option value="date_desc">Newest First</option>
+          <option value="date_asc">Oldest First</option>
+          <option value="size_desc">Size (Large to Small)</option>
+          <option value="size_asc">Size (Small to Large)</option>
+        </select>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
   </div>
 
   <div class="list-header">
@@ -449,6 +465,7 @@ let drives = [];
 let currentDriveId = null; 
 let navStack = []; // [{id, name, isDriveRoot}]
 let allFiles = [];
+let currentSort = 'name_asc';
 
 // ── INIT ─────────────────────────────────────────────────────────────
 // ── AUTH LOGIC ────────────────────────────────────────────────────────
@@ -835,16 +852,51 @@ async function listFolder(folderId) {
   try {
     const data = await apiGet(currentDriveId, '/drive/v3/files', {
       q: `'${folderId}' in parents and trashed=false`,
-      orderBy: 'folder,name',
       pageSize: '1000',
       fields: 'files(id,name,mimeType,size,modifiedTime)'
     });
     allFiles = data.files || [];
-    renderFiles(allFiles);
+    sortAndRender();
     updateStats(allFiles);
   } catch(e) {
     showError('Failed to list folder: ' + e.message);
   }
+}
+
+function onSortChange(val) {
+  currentSort = val;
+  sortAndRender();
+}
+
+function sortAndRender() {
+  if (!allFiles || allFiles.length === 0) return renderFiles([]);
+
+  const sorted = [...allFiles].sort((a, b) => {
+    // 1. Folders always first
+    const isFolderA = a.mimeType === FOLDER_MIME;
+    const isFolderB = b.mimeType === FOLDER_MIME;
+    if (isFolderA && !isFolderB) return -1;
+    if (!isFolderA && isFolderB) return 1;
+
+    // 2. Sort logic based on selection
+    if (currentSort.startsWith('name')) {
+      const naturalSort = a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+      return currentSort === 'name_asc' ? naturalSort : -naturalSort;
+    }
+    else if (currentSort.startsWith('date')) {
+      const dateA = new Date(a.modifiedTime || 0);
+      const dateB = new Date(b.modifiedTime || 0);
+      return currentSort === 'date_asc' ? dateA - dateB : dateB - dateA;
+    }
+    else if (currentSort.startsWith('size')) {
+      const sizeA = parseInt(a.size || 0);
+      const sizeB = parseInt(b.size || 0);
+      return currentSort === 'size_asc' ? sizeA - sizeB : sizeB - sizeA;
+    }
+    return 0;
+  });
+
+  renderFiles(sorted);
 }
 
 const iconMap = {
