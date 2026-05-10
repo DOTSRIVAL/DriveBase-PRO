@@ -112,11 +112,16 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
   .logo span.author { display: none; }
   .logo-icon { padding: 4px; }
   .top-actions { gap: 8px; }
-  #trafficMonitor { display: none !important; } /* Hide traffic on tiny screens */
+  #trafficMonitor, #headerAnalytics { display: none !important; }
 
-  .search-box input { width: 100px; padding: 6px 10px 6px 30px; font-size: 0.8rem; }
-  .search-box input:focus { width: 150px; }
-  .search-box .material-icons { font-size: 16px; left: 8px; }
+  /* SEARCH MOBILE OPTIMIZATION */
+  .search-box { position: static; }
+  .search-box .material-icons { position: static; transform: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--surface2); padding: 8px; border-radius: 6px; border: 1px solid var(--divider); }
+  .search-box input { display: none; position: absolute; left: 0; top: 100%; width: 100%; z-index: 110; background: var(--surface); border-radius: 0; border: none; border-bottom: 2px solid var(--primary); padding: 12px 16px; font-size: 1rem; }
+  .search-box.open input { display: block; }
+
+  /* HIDE LOGOUT IN HEADER ON MOBILE (OPTIONAL - GROUP IN SETTINGS LATER IF NEEDED) */
+  #logoutBtn { display: none !important; }
 
   .main { padding: 12px 10px; }
   .toolbar { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 12px; }
@@ -158,9 +163,13 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 
   .modal { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
   .modal-body { padding: 16px; }
-  .overlay-controls { width: calc(100% - 20px); padding: 12px; bottom: 10px; border-radius: 12px; }
+  .overlay-controls { width: calc(100% - 20px) !important; padding: 10px 14px !important; bottom: 10px !important; border-radius: 12px !important; left: 50% !important; transform: translateX(-50%) !important; gap: 8px !important; }
   .overlay-controls .time-text { font-size: 0.7rem; min-width: 35px; }
-  .overlay-controls .btn-icon .material-icons { font-size: 26px !important; }
+  .overlay-controls .btn-icon { padding: 4px; }
+  .overlay-controls .btn-icon .material-icons { font-size: 24px !important; }
+
+  .progress-container { gap: 8px; }
+  input[type=range]::-webkit-slider-thumb { height: 12px; width: 12px; }
 
   .footer-bar { padding: 6px; font-size: 0.65rem; }
 }
@@ -284,12 +293,12 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
     </div>
   </div>
   <div class="top-actions">
-    <div class="search-box">
-      <span class="material-icons">search</span>
-      <input type="text" placeholder="Search files..." oninput="onSearch(this.value)">
+    <div class="search-box" id="searchBoxWrap">
+      <span class="material-icons" id="searchTrigger" onclick="toggleSearchMobile()">search</span>
+      <input type="text" id="searchInput" placeholder="Search files..." oninput="onSearch(this.value)">
     </div>
     <button class="settings-btn" id="settingsGear" style="display:none;" title="Settings" onclick="openSettings()"><span class="material-icons">settings</span></button>
-    <button class="settings-btn" style="color:#ff5252;" title="Logout" onclick="handleLogout()"><span class="material-icons">logout</span></button>
+    <button class="settings-btn" id="logoutBtn" style="color:#ff5252;" title="Logout" onclick="handleLogout()"><span class="material-icons">logout</span></button>
   </div>
 </div>
 
@@ -410,6 +419,10 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
               <div style="font-size:0.8rem; color:var(--text2);">Unique Active Users</div>
               <div id="analyticsUsers" style="font-size:1.5rem; font-weight:bold; color:#4caf50;">0</div>
             </div>
+          </div>
+
+          <div style="margin-top:20px; border-top: 1px solid var(--divider); padding-top:16px;">
+            <button class="btn btn-danger" style="width:100%; justify-content:center;" onclick="handleLogout()"><span class="material-icons">logout</span> Logout from Session</button>
           </div>
         </div>
       </div>
@@ -1375,6 +1388,14 @@ function onSearch(q) {
   if (!q.trim()) { renderFiles(allFiles); updateStats(allFiles); return; }
   const r = allFiles.filter(f=>f.name.toLowerCase().includes(q.toLowerCase()));
   renderFiles(r); updateStats(r);
+}
+
+function toggleSearchMobile() {
+  const wrap = document.getElementById('searchBoxWrap');
+  wrap.classList.toggle('open');
+  if(wrap.classList.contains('open')) {
+    document.getElementById('searchInput').focus();
+  }
 }
 
 function showLoading(msg) {
