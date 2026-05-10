@@ -770,6 +770,10 @@ async function apiGet(driveId, path, queryParams) {
     url += `&folder_id=root`;
   }
 
+  // Pass orderBy if present
+  const ob = params.get('orderBy');
+  if (ob) url += `&orderBy=${encodeURIComponent(ob)}`;
+
   const r = await fetch(url);
   const data = await r.json().catch(()=>({}));
   if (!r.ok) {
@@ -950,6 +954,9 @@ async function openPanel(f, index) {
   const absoluteStreamUrl = window.location.origin + streamUrl;
   const absoluteDlUrl     = window.location.origin + dlUrl;
 
+  // Store URLs for the play function to use
+  f.tempStreamUrl = streamUrl;
+
   document.getElementById('panelTitle').textContent = f.name;
   document.getElementById('panelBody').innerHTML = `
     <div class="panel-meta">
@@ -959,7 +966,7 @@ async function openPanel(f, index) {
     </div>
     <div class="action-btns">
       ${isMedia
-        ? `<button class="action-btn stream-btn" onclick="playMedia('${streamUrl}', '${f.name.replace(/'/g,"\\'")}', '${f.mimeType}', ${index})"><span class="material-icons">play_circle</span>Stream / Play</button>`
+        ? `<button class="action-btn stream-btn" onclick="playFromIndex(${index})"><span class="material-icons">play_circle</span>Stream / Play</button>`
         : `<button class="action-btn stream-btn" onclick="window.open('${streamUrl}','_blank')"><span class="material-icons">open_in_new</span>Open / Stream</button>`}
       <a href="${dlUrl}" download="${f.name}" class="action-btn dl-btn"><span class="material-icons">download</span>Download</a>
     </div>
@@ -980,6 +987,12 @@ async function openPanel(f, index) {
   `;
   document.getElementById('panelOverlay').classList.add('open');
   document.getElementById('filePanel').classList.add('open');
+}
+
+function playFromIndex(index) {
+  const f = allFiles[index];
+  if (!f) return;
+  playMedia(f.tempStreamUrl, f.name, f.mimeType, index);
 }
 
 function closePanel() {
