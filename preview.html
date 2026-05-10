@@ -101,28 +101,22 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 .btn-icon:hover { background: #d32f2f; color: #fff; }
 .add-drive-form { background: var(--surface2); padding: 16px; border-radius: 6px; border: 1px solid var(--divider); display: none; flex-direction: column; gap: 12px; }
 
-/* RESPONSIVE DESIGN (MOBILE OPTIMIZATION) */
+/* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .topbar { flex-direction: column; gap: 12px; padding: 12px; align-items: flex-start; }
   .top-actions { width: 100%; justify-content: space-between; }
   .search-box input { width: 100%; }
   .search-box input:focus { width: 100%; }
   .search-box { flex: 1; }
-  
   .list-header { grid-template-columns: 1fr 80px; gap: 10px; }
-  .list-header span:nth-child(3) { display: none; } /* Hide Modified Date on Mobile */
-  
+  .list-header span:nth-child(3) { display: none; }
   .list-row { grid-template-columns: 1fr 80px; gap: 10px; padding: 10px 12px; }
   .list-row .date { display: none; }
-  
   .modal { width: 95vw; max-height: 95vh; }
   .panel { width: 100%; }
-  
-  .overlay-controls { padding: 10px; }
-  .btn-icon .material-icons { font-size: 24px !important; }
 }
 .add-drive-form.open { display: flex; }
-.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
 .form-group label { font-size: 0.8rem; color: var(--text2); }
 .form-group input { background: var(--surface); border: 1px solid var(--divider); color: var(--text); padding: 10px; border-radius: 4px; outline: none; font-family: monospace; font-size: 0.85rem; }
 .form-group input:focus { border-color: var(--primary); }
@@ -135,7 +129,6 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 .overlay-controls .btn-icon { background: transparent; color: #fff; padding: 6px; border-radius: 50%; transition: 0.2s; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 .overlay-controls .btn-icon:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
 .video-wrapper.idle .overlay-controls, .video-wrapper.idle .modal-head { opacity: 0; pointer-events: none; }
-.modal-head { transition: opacity 0.3s ease; }
 
 /* LOCK FEATURE */
 .video-wrapper.locked .overlay-controls, .video-wrapper.locked .modal-head { opacity: 0 !important; pointer-events: none !important; }
@@ -144,52 +137,28 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
 .video-wrapper.locked.idle .unlock-btn { opacity: 0; pointer-events: none; }
 .video-wrapper.locked:not(.idle) .unlock-btn { opacity: 1; pointer-events: auto; }
 
-/* ASPECT RATIO CLASSES */
-.vid-fit-contain { object-fit: contain !important; }
-.vid-fit-cover { object-fit: cover !important; }
-.vid-fit-fill { object-fit: fill !important; }
-
 /* PROGRESS BAR */
 .progress-container { display: flex; align-items: center; gap: 12px; width: 100%; }
 .time-text { color: #fff; font-size: 0.85rem; font-variant-numeric: tabular-nums; min-width: 45px; text-align: center; }
 input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; --prog: 0%; --buf: 0%; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; border-radius: 4px; border: none; background: linear-gradient(to right, var(--primary) var(--prog), rgba(255,255,255,0.4) var(--prog), rgba(255,255,255,0.4) var(--buf), rgba(255,255,255,0.15) var(--buf)); }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: var(--primary); margin-top: -4px; box-shadow: 0 0 4px rgba(0,0,0,0.5); transition: 0.1s; }
-input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
-input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
 
 /* SETTINGS TABS */
 .settings-tabs { display: flex; border-bottom: 1px solid var(--divider); margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
-.settings-tabs::-webkit-scrollbar { display: none; }
 .settings-tab { padding: 10px 16px; cursor: pointer; color: var(--text2); border-bottom: 2px solid transparent; font-weight: 500; white-space: nowrap; }
-.settings-tab:hover { color: var(--text); }
 .settings-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 .settings-pane { display: none; }
-.settings-pane.active { display: block; animation: fadeIn 0.2s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.settings-pane.active { display: block; }
 
 /* FOOTER BAR */
 .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--divider); padding: 8px; text-align: center; font-size: 0.75rem; color: var(--text2); letter-spacing: 1.5px; z-index: 99; font-weight: 700; text-transform: uppercase; }
-.main { padding-bottom: 50px; } /* Space for footer */
-
-/* PASSWORD TOGGLE */
-.pass-wrapper { position: relative; }
-.pass-eye { position: absolute; right: 10px; top: 38px; cursor: pointer; color: var(--text2); font-size: 20px !important; }
-
-/* USER LIST TABLE */
-.user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.user-table th, .user-table td { text-align: left; padding: 12px; border-bottom: 1px solid var(--divider); }
-.user-table th { color: var(--text2); font-weight: 500; font-size: 0.85rem; }
-.user-badge { background: var(--surface3); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; color: var(--primary); }
+.main { padding-bottom: 50px; }
 
 /* AUTH OVERLAY */
 .auth-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
 .auth-card { background: var(--surface); padding: 32px; border-radius: 16px; width: 360px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid var(--divider); }
-.auth-card h2 { margin-bottom: 8px; text-align: center; color: var(--primary); }
-.auth-card p { text-align: center; color: var(--text2); font-size: 0.9rem; margin-bottom: 24px; }
-.auth-btn { width: 100%; margin-top: 12px; }
 .auth-footer { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text2); cursor: pointer; text-decoration: underline; }
-.auth-footer:hover { color: var(--text); }
 </style>
 </head>
 <body onload="init()">
@@ -200,29 +169,30 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
     <div align="center" style="margin-bottom:16px;">
       <span class="material-icons" style="font-size: 48px; color: var(--primary);">account_circle</span>
     </div>
-    <h2 id="authTitle">Welcome Back</h2>
-    <p id="authSubtitle">Login to access your Drive Base</p>
+    <h2 id="authTitle" align="center">Welcome Back</h2>
+    <p id="authSubtitle" align="center" style="color:var(--text2); font-size:0.9rem; margin-bottom:24px;">Login to access your Drive Base</p>
     
     <div class="form-group" id="regDisplayGroup" style="display:none;">
       <label>Display Name</label>
-      <input type="text" id="authDisplayName" placeholder="Your Name (e.g. Tamil)">
+      <input type="text" id="authDisplayName" placeholder="Your Name">
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top:10px;">
       <label>Username</label>
       <input type="text" id="authUser" placeholder="Enter username">
     </div>
-    <div class="form-group pass-wrapper">
+    <div class="form-group" style="margin-top:10px; position:relative;">
       <label>Password</label>
       <input type="password" id="authPass" placeholder="Enter password">
-      <span class="material-icons pass-eye" onclick="togglePass('authPass', this)">visibility</span>
+      <span class="material-icons" style="position:absolute; right:10px; top:32px; cursor:pointer; color:var(--text2); font-size:18px;" onclick="togglePass('authPass', this)">visibility</span>
     </div>
     
-    <button class="btn btn-primary auth-btn" onclick="handleAuth()" id="authMainBtn">Login</button>
-    <button class="btn auth-btn" style="background:var(--surface2)" onclick="continueAsGuest()">Continue as Guest</button>
+    <button class="btn btn-primary" style="width:100%; margin-top:20px;" onclick="handleAuth()" id="authMainBtn">Login</button>
+    <button class="btn" style="width:100%; margin-top:10px; background:var(--surface2)" onclick="continueAsGuest()">Continue as Guest</button>
     
     <div class="auth-footer" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Register</div>
   </div>
 </div>
+
 <div class="topbar">
   <div class="logo">
     <div class="logo-icon" style="background: linear-gradient(135deg, #1e88e5, #42a5f5); padding: 6px; border-radius: 8px;">
@@ -234,10 +204,9 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
       <span class="material-icons" style="font-size: 14px;">speed</span>
       <span id="pingText">0 ms</span>
     </div>
-    
     <div id="headerAnalytics" style="margin-left: 8px; font-size: 0.75rem; color: var(--text); display: flex; align-items: center; gap: 8px; background: var(--surface2); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--divider);">
-      <div style="display:flex; align-items:center; gap:2px;" title="Today's Total Data Transfer"><span class="material-icons" style="font-size: 14px; color:var(--primary);">data_usage</span> <span id="headerBytes">0 MB</span></div>
-      <div style="display:flex; align-items:center; gap:2px;" title="Unique Active Users"><span class="material-icons" style="font-size: 14px; color:#ff9800;">people</span> <span id="headerUsers">0</span></div>
+      <div style="display:flex; align-items:center; gap:2px;"><span class="material-icons" style="font-size: 14px; color:var(--primary);">data_usage</span> <span id="headerBytes">0 MB</span></div>
+      <div style="display:flex; align-items:center; gap:2px;"><span class="material-icons" style="font-size: 14px; color:#ff9800;">people</span> <span id="headerUsers">0</span></div>
     </div>
   </div>
   <div class="top-actions">
@@ -255,10 +224,7 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
     <div class="breadcrumb" id="breadcrumb"></div>
     <div class="stats" id="stats"></div>
   </div>
-  
-  <div class="list-header">
-    <span>Name</span><span>Size</span><span>Modified</span>
-  </div>
+  <div class="list-header"><span>Name</span><span>Size</span><span>Modified</span></div>
   <div class="list" id="list"></div>
 </div>
 
@@ -276,121 +242,57 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
 <div class="modal-overlay" id="settingsModal">
   <div class="modal">
     <div class="modal-head">
-      <span>Manage Storage Drives</span>
+      <span>Settings</span>
       <span class="material-icons" style="cursor:pointer" onclick="closeSettings()">close</span>
     </div>
     <div class="modal-body">
       <div class="settings-tabs">
         <div class="settings-tab active" onclick="switchTab('tab-drives', this)">☁ Drives</div>
         <div class="settings-tab" onclick="switchTab('tab-speed', this)">⚡ Speed</div>
-        <div class="settings-tab" onclick="switchTab('tab-analytics', this)">📊 Analytics</div>
         <div class="settings-tab" onclick="switchTab('tab-security', this)">🔒 Link Security</div>
         <div class="settings-tab" onclick="switchTab('tab-users', this); fetchUsers()">👥 Users</div>
       </div>
       
-      <!-- TAB: DRIVES -->
       <div id="tab-drives" class="settings-pane active">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3>Connected Drives</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3>Drives</h3>
           <button class="btn btn-primary" onclick="toggleAddForm()"><span class="material-icons">add</span> Add Drive</button>
         </div>
         <div class="drive-list" id="driveListUI"></div>
-        <div class="add-drive-form" id="addDriveForm">
-          <h4>Add New Google Drive</h4>
-          <div class="form-group">
-            <label>Drive Name (e.g. Personal, Movies)</label>
-            <input type="text" id="inName" placeholder="My Drive">
-          </div>
-          <div class="form-group">
-            <label>Client ID</label>
-            <input type="text" id="inClientId" placeholder="xxx.apps.googleusercontent.com">
-          </div>
-          <div class="form-group">
-            <label>Client Secret</label>
-            <input type="text" id="inClientSecret" placeholder="GOCSPX-...">
-          </div>
-          <div class="form-group">
-            <label>Refresh Token</label>
-            <input type="text" id="inRefreshToken" placeholder="1//0g...">
-          </div>
-          <div style="display:flex; gap:10px; margin-top:8px;">
+        <div class="add-drive-form" id="addDriveForm" style="margin-top:15px;">
+          <h4 id="formTitle">Add New Drive</h4>
+          <div class="form-group"><label>Name</label><input type="text" id="inName" placeholder="My Drive"></div>
+          <div class="form-group"><label>Client ID</label><input type="text" id="inClientId"></div>
+          <div class="form-group"><label>Client Secret</label><input type="text" id="inClientSecret"></div>
+          <div class="form-group"><label>Refresh Token</label><input type="text" id="inRefreshToken"></div>
+          <div class="form-group"><label>Root Folder ID (Optional)</label><input type="text" id="inRootId" placeholder="root"></div>
+          <div style="display:flex; gap:10px; margin-top:10px;">
             <button id="saveDriveBtn" class="btn btn-primary" onclick="saveNewDrive()">Save Drive</button>
             <button class="btn" style="background:var(--surface3)" onclick="toggleAddForm()">Cancel</button>
           </div>
         </div>
       </div>
       
-      <!-- TAB: SPEED -->
       <div id="tab-speed" class="settings-pane">
-        <h3>Traffic & Speed Control</h3>
-        <p style="color:var(--text2); font-size:0.85rem; margin-bottom:16px;">Set global limits to protect your server bandwidth.</p>
-        <div class="form-group">
-          <label>Proxy Chunk Size (MB)</label>
-          <input type="number" id="inChunkSize" placeholder="2" value="2" min="1" max="100">
-          <span style="font-size:0.7rem; color:var(--text2);">Larger chunks increase max speed but use more RAM. (Default: 2MB)</span>
-        </div>
-        <div class="form-group" style="margin-top:12px;">
-          <label>Global Speed Limit (MB/s) - 0 for Unlimited</label>
-          <input type="number" step="0.1" id="inSpeedLimit" value="0">
-        </div>
-        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px; margin-top:12px;">
-          <input type="checkbox" id="inDirectMode" style="width:18px; height:18px; accent-color:var(--primary);">
-          <label for="inDirectMode" style="font-weight:bold;">Enable Direct Download (Max Speed)</label>
-        </div>
-        <p style="font-size:0.7rem; color:#ffb74d; margin-top:4px;">Warning: Direct mode connects directly to Google Drive. This gives Maximum Speed but skips proxy features.</p>
-        <button class="btn btn-primary" style="margin-top:20px; width:100%;" onclick="saveGlobalSettings()">Apply/Save Settings</button>
+        <h3>Speed Control</h3>
+        <div class="form-group"><label>Chunk Size (MB)</label><input type="number" id="inChunkSize" value="2"></div>
+        <div class="form-group"><label>Speed Limit (MB/s) - 0 for unlimited</label><input type="number" id="inSpeedLimit" value="0"></div>
+        <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;"><input type="checkbox" id="inDirectMode"> <label>Enable Direct Mode</label></div>
+        <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="saveGlobalSettings()">Save Settings</button>
       </div>
       
-      <!-- TAB: ANALYTICS -->
-      <div id="tab-analytics" class="settings-pane">
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          <h3>📊 Analytics & Traffic Monitor</h3>
-          <p style="font-size:0.8rem; color:var(--text2);">Monitor how much data and users are flowing through your Drive Base today.</p>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div style="background:var(--surface); padding:12px; border-radius:8px; border:1px solid var(--divider); text-align:center;">
-              <div style="font-size:0.8rem; color:var(--text2);">Today's Data Transfer</div>
-              <div id="analyticsBytes" style="font-size:1.5rem; font-weight:bold; color:var(--primary);">0 MB</div>
-            </div>
-            <div style="background:var(--surface); padding:12px; border-radius:8px; border:1px solid var(--divider); text-align:center;">
-              <div style="font-size:0.8rem; color:var(--text2);">Unique Active Users</div>
-              <div id="analyticsUsers" style="font-size:1.5rem; font-weight:bold; color:#4caf50;">0</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- TAB: SECURITY -->
       <div id="tab-security" class="settings-pane">
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          <h3>🔒 Link Manager & Security</h3>
-          <p style="font-size:0.8rem; color:var(--text2);">Configure expiration times for your download and stream links so they cannot be reused indefinitely.</p>
-          <div class="form-group">
-            <label>Link Expiration Time (Hours)</label>
-            <input type="number" id="inLinkExpiry" placeholder="0" value="0" min="0">
-            <span style="font-size:0.7rem; color:var(--text2);">Set to 0 to make links never expire. If set to e.g. 2, links will only work for 2 hours after they are copied.</span>
-          </div>
-          <div>
-            <button class="btn btn-primary" onclick="saveGlobalSettings()">Save Security Settings</button>
-          </div>
-        </div>
+        <h3>Link Security</h3>
+        <div class="form-group"><label>Link Expiry (Hours) - 0 for never</label><input type="number" id="inLinkExpiry" value="0"></div>
+        <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="saveGlobalSettings()">Save Security</button>
       </div>
 
-      <!-- TAB: USERS -->
       <div id="tab-users" class="settings-pane">
-        <h3>👥 Registered Users</h3>
-        <p style="color:var(--text2); font-size:0.9rem; margin-bottom:16px;">Manage all users who have registered on your Drive Base.</p>
-        <div style="overflow-x:auto;">
-          <table class="user-table">
-            <thead>
-              <tr><th>Display Name</th><th>Username</th><th>Role</th></tr>
-            </thead>
-            <tbody id="userListBody">
-              <tr><td colspan="3" style="text-align:center; color:var(--text2);">Click this tab to load users...</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <h3>Users</h3>
+        <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+          <tbody id="userListBody"></tbody>
+        </table>
       </div>
-
     </div>
   </div>
 </div>
@@ -398,38 +300,27 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
 <!-- PLAYER MODAL -->
 <div class="modal-overlay" id="playerModal">
   <div class="modal" style="width: 900px; max-width: 95vw; background: #000; position: relative;">
-    <div class="video-wrapper" id="videoWrapper" onmousemove="resetIdleTimer()" onclick="resetIdleTimer()">
+    <div class="video-wrapper" id="videoWrapper" onmousemove="resetIdleTimer()">
       <div class="modal-head" style="position:absolute; top:0; left:0; width:100%; background:linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); border:none; z-index:40;">
-        <span id="playerTitle" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; font-weight: bold; color:#fff; text-shadow: 1px 1px 3px #000;">Media Player</span>
+        <span id="playerTitle" style="color:#fff; font-weight:bold;">Media Player</span>
         <span class="material-icons" style="cursor:pointer; color:#fff;" onclick="closePlayer()">close</span>
       </div>
-      
       <div id="playerContainer" style="width:100%;"></div>
-      
-      <button class="unlock-btn" onclick="toggleLock()" title="Unlock"><span class="material-icons" style="font-size:28px">lock</span></button>
-      
       <div class="overlay-controls" id="overlayControls">
-        <!-- Progress Bar -->
         <div class="progress-container">
           <span class="time-text" id="timeCurrent">0:00</span>
           <input type="range" id="progressBar" min="0" max="100" value="0" step="0.1" oninput="seekVideo(this.value)">
           <span class="time-text" id="timeDuration">0:00</span>
         </div>
-        
-        <!-- Controls Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <button class="btn-icon" onclick="togglePlay()" title="Play/Pause"><span class="material-icons" id="playBtnIcon" style="font-size:32px">pause</span></button>
-            <button class="btn-icon" onclick="playSibling(-1)" title="Previous Media"><span class="material-icons" style="font-size:26px">skip_previous</span></button>
-            <button class="btn-icon" onclick="skipMedia(-10)" title="Rewind 10s"><span class="material-icons" style="font-size:26px">replay_10</span></button>
-            <button class="btn-icon" onclick="skipMedia(10)" title="Forward 10s"><span class="material-icons" style="font-size:26px">forward_10</span></button>
-            <button class="btn-icon" onclick="playSibling(1)" title="Next Media"><span class="material-icons" style="font-size:26px">skip_next</span></button>
+        <div style="display:flex; justify-content:space-between;">
+          <div style="display:flex; gap:12px;">
+            <button class="btn-icon" onclick="togglePlay()"><span class="material-icons" id="playBtnIcon">pause</span></button>
+            <button class="btn-icon" onclick="playSibling(-1)"><span class="material-icons">skip_previous</span></button>
+            <button class="btn-icon" onclick="playSibling(1)"><span class="material-icons">skip_next</span></button>
           </div>
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <button class="btn-icon" onclick="cycleAspect()" title="Aspect Ratio"><span class="material-icons" id="aspectIcon" style="font-size:24px">aspect_ratio</span></button>
-            <button class="btn-icon" onclick="toggleMute()" title="Mute"><span class="material-icons" id="muteBtnIcon" style="font-size:26px">volume_up</span></button>
-            <button class="btn-icon" onclick="toggleLock()" title="Lock Screen"><span class="material-icons" style="font-size:24px">lock_open</span></button>
-            <button class="btn-icon" onclick="toggleFullscreen()" title="Fullscreen"><span class="material-icons" style="font-size:28px">fullscreen</span></button>
+          <div style="display:flex; gap:12px;">
+            <button class="btn-icon" onclick="toggleMute()"><span class="material-icons" id="muteBtnIcon">volume_up</span></button>
+            <button class="btn-icon" onclick="toggleFullscreen()"><span class="material-icons">fullscreen</span></button>
           </div>
         </div>
       </div>
@@ -443,850 +334,318 @@ const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 let drives = [];
 let currentDriveId = null; 
-let navStack = []; // [{id, name, isDriveRoot}]
+let navStack = [];
 let allFiles = [];
-
-// ── INIT ─────────────────────────────────────────────────────────────
-// ── AUTH LOGIC ────────────────────────────────────────────────────────
 let currentUser = null;
-let isRegisterMode = false;
+
+// ── AUTH ─────────────────────────────────────────────────────────────
+function togglePass(id, el) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  el.textContent = inp.type === 'password' ? 'visibility' : 'visibility_off';
+}
 
 function toggleAuthMode() {
-  isRegisterMode = !isRegisterMode;
-  document.getElementById('regDisplayGroup').style.display = isRegisterMode ? 'block' : 'none';
-  document.getElementById('authTitle').textContent = isRegisterMode ? "Create Account" : "Welcome Back";
-  document.getElementById('authSubtitle').textContent = isRegisterMode ? "Register to save your drives" : "Login to access your Drive Base";
-  document.getElementById('authMainBtn').textContent = isRegisterMode ? "Register" : "Login";
-  document.getElementById('authToggle').textContent = isRegisterMode ? "Already have an account? Login" : "Don't have an account? Register";
+  const isReg = document.getElementById('regDisplayGroup').style.display === 'none';
+  document.getElementById('regDisplayGroup').style.display = isReg ? 'block' : 'none';
+  document.getElementById('authTitle').textContent = isReg ? "Create Account" : "Welcome Back";
+  document.getElementById('authMainBtn').textContent = isReg ? "Register" : "Login";
 }
 
 async function handleAuth() {
+  const isReg = document.getElementById('regDisplayGroup').style.display !== 'none';
   const u = document.getElementById('authUser').value;
   const p = document.getElementById('authPass').value;
-  const dname = document.getElementById('authDisplayName').value;
-  if(!u || !p) return alert("Please fill all fields");
-  
-  const endpoint = isRegisterMode ? '/register' : '/login';
-  const r = await fetch(`${PROXY}${endpoint}`, {
+  const d = document.getElementById('authDisplayName').value;
+  if(!u || !p) return alert("Fill all fields");
+
+  const r = await fetch(`${PROXY}${isReg?'/register':'/login'}`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({username: u, password: p, display_name: dname})
+    body: JSON.stringify({username: u, password: p, display_name: d})
   });
-  
-  const d = await r.json();
+  const res = await r.json();
   if(r.ok) {
-    if(isRegisterMode) {
-      alert("Registration successful! Please login.");
-      toggleAuthMode();
-    } else {
-      localStorage.setItem('drive_token', d.token);
-      localStorage.setItem('drive_user', d.username);
-      localStorage.setItem('drive_display_name', d.display_name);
-      localStorage.setItem('drive_role', d.role);
-      if(d.role === 'admin') localStorage.setItem('drive_pass', p);
-      completeLogin(d);
+    if(isReg) { alert("Registered! Login now."); toggleAuthMode(); }
+    else {
+      localStorage.setItem('db_token', res.token);
+      localStorage.setItem('db_user', res.username);
+      localStorage.setItem('db_role', res.role);
+      localStorage.setItem('db_dname', res.display_name);
+      if(res.role === 'admin') localStorage.setItem('db_pass', p);
+      completeLogin(res);
     }
-  } else {
-    alert(d.error || "Authentication failed");
-  }
+  } else alert(res.error);
 }
 
 function continueAsGuest() {
-  localStorage.setItem('drive_role', 'guest');
-  document.getElementById('settingsGear').style.display = 'none';
-  completeLogin({ username: 'Guest', display_name: 'Guest', role: 'guest' });
-}
-
-function handleLogout() {
-  localStorage.clear();
-  location.reload();
+  completeLogin({username: 'Guest', display_name: 'Guest', role: 'guest'});
 }
 
 function completeLogin(user) {
   currentUser = user;
   document.getElementById('authOverlay').style.display = 'none';
-  
-  // Show Display Name in Header
-  const authorEl = document.getElementById('headerAuthor');
-  if(authorEl) authorEl.textContent = `Hi, ${user.display_name || user.username}`;
-
-  // Only show settings gear if Admin
-  if(user.role === 'admin') {
-    document.getElementById('settingsGear').style.display = 'flex';
-  } else {
-    document.getElementById('settingsGear').style.display = 'none';
-  }
-  
+  document.getElementById('headerAuthor').textContent = `Hi, ${user.display_name}`;
+  if(user.role === 'admin') document.getElementById('settingsGear').style.display = 'flex';
   initApp();
 }
 
-function togglePass(id, el) {
-  const inp = document.getElementById(id);
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    el.textContent = 'visibility_off';
-  } else {
-    inp.type = 'password';
-    el.textContent = 'visibility';
-  }
-}
-
-async function fetchUsers() {
-  const body = document.getElementById('userListBody');
-  body.innerHTML = '<tr><td colspan="3" style="text-align:center;">Loading users...</td></tr>';
-  try {
-    const pass = localStorage.getItem('drive_pass') || '';
-    const r = await fetch(`${PROXY}/users?admin_pass=${pass}`);
-    if(!r.ok) throw new Error("Failed to load users");
-    const data = await r.json();
-    body.innerHTML = '';
-    data.forEach(u => {
-      body.innerHTML += `
-        <tr>
-          <td><b>${u.display_name}</b></td>
-          <td style="color:var(--text2)">${u.username}</td>
-          <td><span class="user-badge">${u.role.toUpperCase()}</span></td>
-        </tr>
-      `;
-    });
-  } catch(e) {
-    body.innerHTML = `<tr><td colspan="3" style="color:#ff5252; text-align:center;">${e.message}</td></tr>`;
-  }
-}
+function handleLogout() { localStorage.clear(); location.reload(); }
 
 async function init() {
-  const token = localStorage.getItem('drive_token');
-  const role = localStorage.getItem('drive_role');
-  const user = localStorage.getItem('drive_user');
-  const display_name = localStorage.getItem('drive_display_name');
-  
-  if(token && role) {
-    completeLogin({token, role, username: user, display_name: display_name});
-  } else {
-    document.getElementById('authOverlay').style.display = 'flex';
-  }
+  const token = localStorage.getItem('db_token');
+  if(token) completeLogin({token, username: localStorage.getItem('db_user'), role: localStorage.getItem('db_role'), display_name: localStorage.getItem('db_dname')});
+  else document.getElementById('authOverlay').style.display = 'flex';
 }
 
+// ── APP ─────────────────────────────────────────────────────────────
 async function initApp() {
   await fetchDrives();
   await fetchGlobalSettings();
-  await fetchAnalytics();
   renderRootDrives();
-  
   setInterval(fetchAnalytics, 10000);
-  
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closePanel(); closeSettings(); closePlayer();
-    }
-  });
 }
 
-// ── SETTINGS API ─────────────────────────────────────────────────────
+async function fetchDrives() {
+  const pass = localStorage.getItem('db_pass') || '';
+  const r = await fetch(`${PROXY}/drives?admin_pass=${pass}`);
+  drives = await r.json();
+}
+
 async function fetchGlobalSettings() {
-  try {
-    const r = await fetch(`${PROXY}/settings`);
-    if(r.ok) {
-      const s = await r.json();
-      document.getElementById('inChunkSize').value = s.chunk_size_mb || 2;
-      document.getElementById('inSpeedLimit').value = s.speed_limit_mb || 0;
-      document.getElementById('inDirectMode').checked = s.direct_download_mode || false;
-      document.getElementById('inLinkExpiry').value = s.link_expiry_hours || 0;
-    }
-  } catch(e) { console.error("Could not fetch settings", e); }
+  const r = await fetch(`${PROXY}/settings`);
+  if(r.ok) {
+    const s = await r.json();
+    document.getElementById('inChunkSize').value = s.chunk_size_mb;
+    document.getElementById('inSpeedLimit').value = s.speed_limit_mb;
+    document.getElementById('inDirectMode').checked = s.direct_download_mode;
+    document.getElementById('inLinkExpiry').value = s.link_expiry_hours;
+  }
 }
 
 async function fetchAnalytics() {
-  try {
-    const r = await fetch(`${PROXY}/analytics`);
-    if(r.ok) {
-      const data = await r.json();
-      const bytes = data.total_bytes || 0;
-      const gb = (bytes / (1024*1024*1024)).toFixed(2);
-      const mb = (bytes / (1024*1024)).toFixed(2);
-      const formattedBytes = bytes > 1024*1024*1024 ? `${gb} GB` : `${mb} MB`;
-      const usersCount = data.unique_users || 0;
-      
-      document.getElementById('analyticsBytes').textContent = formattedBytes;
-      document.getElementById('analyticsUsers').textContent = usersCount;
-      
-      const hb = document.getElementById('headerBytes');
-      if(hb) hb.textContent = formattedBytes;
-      
-      const hu = document.getElementById('headerUsers');
-      if(hu) hu.textContent = usersCount;
-    }
-  } catch(e) { console.error("Could not fetch analytics", e); }
-}
-
-async function saveGlobalSettings() {
-  const btn = event.target;
-  btn.textContent = "Applying...";
-  try {
-    const body = {
-      chunk_size_mb: parseInt(document.getElementById('inChunkSize').value) || 2,
-      speed_limit_mb: parseFloat(document.getElementById('inSpeedLimit').value) || 0,
-      direct_download_mode: document.getElementById('inDirectMode').checked,
-      link_expiry_hours: parseFloat(document.getElementById('inLinkExpiry').value) || 0
-    };
-    const pass = localStorage.getItem('drive_pass') || '';
-    const r = await fetch(`${PROXY}/settings?admin_pass=${pass}`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
-    });
-    if(!r.ok) throw new Error("Failed to save settings");
-    alert("Settings Applied Successfully!");
-  } catch(e) {
-    alert(e.message);
-  } finally {
-    btn.textContent = "Apply/Save Settings";
-  }
-}
-
-// ── UI TAB HELPERS ─────────────────────────────────────────────────────
-function switchTab(tabId, el) {
-  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.settings-pane').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById(tabId).classList.add('active');
-}
-
-// ── DRIVES API ───────────────────────────────────────────────────────
-async function fetchDrives() {
-  try {
-    const pass = localStorage.getItem('drive_pass') || '';
-    const r = await fetch(`${PROXY}/drives?admin_pass=${pass}`);
-    drives = await r.json();
-  } catch(e) { console.error("Failed to load drives", e); }
-}
-
-let editingDriveId = null;
-
-async function saveNewDrive() {
-  const btn = event.target;
-  btn.textContent = 'Saving...';
-  try {
-    const body = {
-      name: document.getElementById('inName').value,
-      client_id: document.getElementById('inClientId').value,
-      client_secret: document.getElementById('inClientSecret').value,
-      refresh_token: document.getElementById('inRefreshToken').value
-    };
-    
-    const url = editingDriveId ? `${PROXY}/drives/${editingDriveId}` : `${PROXY}/drives`;
-    const method = editingDriveId ? 'PUT' : 'POST';
-
-    const pass = localStorage.getItem('drive_pass') || '';
-    const r = await fetch(`${url}?admin_pass=${pass}`, {
-      method: method,
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
-    });
+  const r = await fetch(`${PROXY}/analytics`);
+  if(r.ok) {
     const d = await r.json();
-    if(d.error) throw new Error(d.error);
-    
-    alert(editingDriveId ? 'Drive Updated!' : 'Drive Added!');
-    
-    document.getElementById('addDriveForm').classList.remove('open');
-    resetAddForm();
-    await fetchDrives();
-    renderSettingsDrives();
-    if(!currentDriveId || currentDriveId === editingDriveId) renderRootDrives();
-  } catch(e) {
-    alert('Error: ' + e.message);
-  } finally {
-    btn.textContent = editingDriveId ? 'Update Drive' : 'Save Drive';
+    const mb = (d.total_bytes / (1024*1024)).toFixed(1);
+    document.getElementById('headerBytes').textContent = mb + ' MB';
+    document.getElementById('headerUsers').textContent = d.unique_users;
   }
 }
 
-function resetAddForm() {
-  editingDriveId = null;
-  document.getElementById('inName').value = '';
-  document.getElementById('inClientId').value = '';
-  document.getElementById('inClientId').placeholder = '';
-  document.getElementById('inClientSecret').value = '';
-  document.getElementById('inClientSecret').placeholder = '';
-  document.getElementById('inRefreshToken').value = '';
-  document.getElementById('inRefreshToken').placeholder = '';
-  document.getElementById('saveDriveBtn').textContent = 'Save Drive';
+async function apiGet(driveId, folderId) {
+  const r = await fetch(`${PROXY}/list?drive_id=${driveId}&folder_id=${folderId}`);
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error || "Fetch failed");
+  return d;
 }
 
-function openEditForm(id) {
-  editingDriveId = id;
-  const drive = drives.find(d => d.id === id);
-  if (!drive) return;
-  
-  document.getElementById('addDriveForm').classList.add('open');
-  document.getElementById('inName').value = drive.name || '';
-  document.getElementById('inClientId').value = drive.client_id || '';
-  document.getElementById('inClientSecret').value = drive.client_secret || '';
-  document.getElementById('inRefreshToken').value = drive.refresh_token || '';
-  
-  document.getElementById('saveDriveBtn').textContent = 'Update Drive';
-}
-
-async function deleteDrive(id) {
-  if(!confirm('Remove this drive?')) return;
-  try {
-    const pass = localStorage.getItem('drive_pass') || '';
-    await fetch(`${PROXY}/drives/${id}?admin_pass=${pass}`, {method: 'DELETE'});
-    await fetchDrives();
-    renderSettingsDrives();
-    if(currentDriveId === id) {
-      navStack = []; currentDriveId = null; renderRootDrives();
-    } else if(!currentDriveId) {
-      renderRootDrives();
-    }
-  } catch(e) { alert(e.message); }
-}
-
-// ── API HELPERS ──────────────────────────────────────────────────────
-async function apiGet(driveId, path, queryParams) {
-  const params = new URLSearchParams(queryParams || {});
-  
-  // Use /meta for file metadata (like root ID)
-  if (path.includes('files/') && !params.get('q')) {
-    const fileId = path.split('/').pop();
-    const r = await fetch(`${PROXY}/meta/${driveId}/${fileId}`);
-    const data = await r.json().catch(()=>({}));
-    if (!r.ok) throw new Error(data.error || "Metadata fetch failed");
-    return data;
-  }
-  
-  // Use /list for folder listing
-  let url = `${PROXY}/list?drive_id=${driveId}`;
-  const q = params.get('q');
-  if (q) {
-    const match = q.match(/'([^']+)' in parents/);
-    if (match) url += `&folder_id=${match[1]}`;
-  } else {
-    url += `&folder_id=root`;
-  }
-
-  const r = await fetch(url);
-  const data = await r.json().catch(()=>({}));
-  if (!r.ok) {
-    throw new Error(data.error || r.statusText || "Request failed");
-  }
-  return data;
-}
-
-// ── UI RENDERING ─────────────────────────────────────────────────────
+// ── UI ─────────────────────────────────────────────────────────────
 function renderRootDrives() {
-  currentDriveId = null;
-  navStack = [];
-  renderBreadcrumb();
-  document.getElementById('stats').innerHTML = `<span><strong>${drives.length}</strong> Drives connected</span>`;
-  
-  if (drives.length === 0) {
-    document.getElementById('list').innerHTML = `
-      <div class="state">
-        <span class="material-icons" style="font-size:48px;color:var(--surface3)">cloud_off</span>
-        <span>No drives added. Click Settings (⚙) to add your Google Drive.</span>
-      </div>`;
-    return;
-  }
-  
-  document.getElementById('list').innerHTML = drives.map((d, i) => `
-    <div class="list-row" onclick="openDriveRoot('${d.id}', '${d.name.replace(/'/g,"\\'")}')">
-      <div class="name">
-        <span class="material-icons" style="color:var(--primary)">cloud</span>
-        <span style="font-weight:500">${d.name}</span>
-      </div>
-      <div class="size">—</div>
-      <div class="date">—</div>
-    </div>
-  `).join('');
+  currentDriveId = null; navStack = []; renderBreadcrumb();
+  const el = document.getElementById('list');
+  if(!drives.length) { el.innerHTML = '<div class="state">No drives found.</div>'; return; }
+  el.innerHTML = drives.map(d => `
+    <div class="list-row" onclick="openDriveRoot('${d.id}')">
+      <div class="name"><span class="material-icons" style="color:var(--primary)">cloud</span>${d.name}</div>
+      <div class="size">—</div><div class="date">—</div>
+    </div>`).join('');
 }
 
-async function openDriveRoot(id, name) {
+async function openDriveRoot(id) {
+  const drive = drives.find(d => d.id === id);
   currentDriveId = id;
-  try {
-    showLoading(`Connecting to ${name}…`);
-    const data = await apiGet(id, '/drive/v3/files/root', {fields:'id,name'});
-    navStack = [{id: data.id, name: name, isDriveRoot: true}];
-    renderBreadcrumb();
-    await listFolder(data.id);
-  } catch(e) {
-    showError(`Failed to connect to ${name}: ` + e.message);
-  }
+  const rootId = drive.root_id || 'root';
+  navStack = [{id: rootId, name: drive.name}];
+  renderBreadcrumb();
+  await listFolder(rootId);
 }
 
 async function listFolder(folderId) {
-  showLoading('Loading files…');
+  showLoading();
   try {
-    const data = await apiGet(currentDriveId, '/drive/v3/files', {
-      q: `'${folderId}' in parents and trashed=false`,
-      orderBy: 'folder,name',
-      pageSize: '1000',
-      fields: 'files(id,name,mimeType,size,modifiedTime)'
-    });
+    const data = await apiGet(currentDriveId, folderId);
     allFiles = data.files || [];
     renderFiles(allFiles);
     updateStats(allFiles);
-  } catch(e) {
-    showError('Failed to list folder: ' + e.message);
-  }
-}
-
-const iconMap = {
-  'application/vnd.google-apps.folder': {icon:'folder',color:'var(--folder)'},
-  'video/': {icon:'play_circle_filled',color:'var(--video)'},
-  'audio/': {icon:'audiotrack',color:'var(--audio)'},
-  'image/': {icon:'image',color:'var(--image)'},
-  'application/vnd.google-apps.document':{icon:'description',color:'var(--doc)'},
-  'application/pdf':{icon:'picture_as_pdf',color:'var(--doc)'},
-  'application/zip':{icon:'folder_zip',color:'var(--folder)'},
-};
-function getIcon(mime) {
-  if (!mime) return {icon:'insert_drive_file',color:'var(--other)'};
-  if (mime === FOLDER_MIME) return iconMap[FOLDER_MIME];
-  for (const [k,v] of Object.entries(iconMap)) {
-    if (k !== FOLDER_MIME && mime.startsWith(k)) return v;
-  }
-  return {icon:'insert_drive_file',color:'var(--other)'};
-}
-
-function fmtSize(bytes) {
-  if (!bytes || bytes === '0') return '—';
-  const b = parseInt(bytes);
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-  if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
-  return (b/1073741824).toFixed(2) + ' GB';
-}
-
-function fmtDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+  } catch(e) { showError(e.message); }
 }
 
 function renderFiles(files) {
   const el = document.getElementById('list');
-  if (!files.length) {
-    el.innerHTML = '<div class="state"><span class="material-icons" style="font-size:48px;color:var(--surface3)">folder_open</span><span>Folder is empty</span></div>';
-    return;
-  }
-  el.innerHTML = files.map((f,i) => {
-    const ic = getIcon(f.mimeType);
+  if(!files.length) { el.innerHTML = '<div class="state">Folder is empty</div>'; return; }
+  el.innerHTML = files.map((f, i) => {
     const isFolder = f.mimeType === FOLDER_MIME;
-    return `<div class="list-row" onclick="onItem(${i})">
-      <div class="name">
-        <span class="material-icons" style="color:${ic.color}">${ic.icon}</span>
-        <span title="${f.name}">${f.name}</span>
-      </div>
-      <div class="size">${isFolder?'—':fmtSize(f.size)}</div>
-      <div class="date">${fmtDate(f.modifiedTime)}</div>
-    </div>`;
+    return `
+      <div class="list-row" onclick="onItem(${i})">
+        <div class="name">
+          <span class="material-icons" style="color:${isFolder?'var(--folder)':'var(--other)'}">${isFolder?'folder':'insert_drive_file'}</span>
+          ${f.name}
+        </div>
+        <div class="size">${isFolder?'—':(f.size/(1024*1024)).toFixed(1)+' MB'}</div>
+        <div class="date">${new Date(f.modifiedTime).toLocaleDateString()}</div>
+      </div>`;
   }).join('');
 }
 
-function updateStats(files) {
-  const folders = files.filter(f=>f.mimeType===FOLDER_MIME).length;
-  const filesCount = files.length - folders;
-  document.getElementById('stats').innerHTML =
-    `<span><strong>${files.length}</strong> items</span><span>·</span><span><strong>${folders}</strong> folders</span><span>·</span><span><strong>${filesCount}</strong> files</span>`;
-}
-
-function renderBreadcrumb() {
-  const el = document.getElementById('breadcrumb');
-  let html = '<span class="bc-item" onclick="renderRootDrives()"><span class="material-icons" style="font-size:18px">home</span> Home</span>';
-  
-  navStack.forEach((n, i) => {
-    const isLast = i === navStack.length - 1;
-    html += `<span class="bc-sep">/</span><span class="bc-item${isLast?' active':''}" onclick="navTo(${i})">${n.name}</span>`;
-  });
-  el.innerHTML = html;
-}
-
-// ── FILE PANEL ───────────────────────────────────────────────────────
 function onItem(i) {
   const f = allFiles[i];
-  if (f.mimeType === FOLDER_MIME) {
+  if(f.mimeType === FOLDER_MIME) {
     navStack.push({id: f.id, name: f.name});
     renderBreadcrumb();
     listFolder(f.id);
-  } else {
-    openPanel(f, i);
-  }
-}
-
-function navTo(i) {
-  if (i === navStack.length-1) return;
-  navStack = navStack.slice(0, i+1);
-  renderBreadcrumb();
-  listFolder(navStack[navStack.length-1].id);
+  } else openPanel(f, i);
 }
 
 async function openPanel(f, index) {
-  let streamUrl = `${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
-  let dlUrl     = `${PROXY}/download?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
+  let sUrl = `${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
+  let dUrl = `${PROXY}/download?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
   
-  // Fetch signature if expiry is active
   try {
-    const r = await fetch(`${PROXY}/sign?drive_id=${currentDriveId}&id=${f.id}`);
-    const sigData = await r.json();
-    if(sigData.exp > 0) {
-      streamUrl += `&exp=${sigData.exp}&sig=${sigData.sig}`;
-      dlUrl     += `&exp=${sigData.exp}&sig=${sigData.sig}`;
-    }
-  } catch(e) { console.error("Could not sign link"); }
+    const sr = await fetch(`${PROXY}/sign?drive_id=${currentDriveId}&id=${f.id}`);
+    const sd = await sr.json();
+    if(sd.exp > 0) { sUrl += `&exp=${sd.exp}&sig=${sd.sig}`; dUrl += `&exp=${sd.exp}&sig=${sd.sig}`; }
+  } catch(e){}
 
-  const isMedia   = f.mimeType && (f.mimeType.startsWith('video/') || f.mimeType.startsWith('audio/'));
-  const absoluteStreamUrl = window.location.origin + streamUrl;
-  const absoluteDlUrl     = window.location.origin + dlUrl;
-
+  const isV = f.mimeType.startsWith('video/') || f.mimeType.startsWith('audio/');
   document.getElementById('panelTitle').textContent = f.name;
   document.getElementById('panelBody').innerHTML = `
-    <div class="panel-meta">
-      <span class="lbl">Size</span><span class="val">${fmtSize(f.size)}</span>
-      <span class="lbl">Modified</span><span class="val">${fmtDate(f.modifiedTime)}</span>
-      <span class="lbl">Type</span><span class="val">${f.mimeType||'—'}</span>
-    </div>
     <div class="action-btns">
-      ${isMedia
-        ? `<button class="action-btn stream-btn" onclick="playMedia('${streamUrl}', '${f.name.replace(/'/g,"\\'")}', '${f.mimeType}', ${index})"><span class="material-icons">play_circle</span>Stream / Play</button>`
-        : `<button class="action-btn stream-btn" onclick="window.open('${streamUrl}','_blank')"><span class="material-icons">open_in_new</span>Open / Stream</button>`}
-      <a href="${dlUrl}" download="${f.name}" class="action-btn dl-btn"><span class="material-icons">download</span>Download</a>
+      <button class="action-btn stream-btn" onclick="${isV?`playMedia('${sUrl}','${f.name.replace(/'/g,"\\'")}', '${f.mimeType}', ${index})`:`window.open('${sUrl}')`}"><span class="material-icons">play_circle</span>Stream</button>
+      <a href="${dUrl}" class="action-btn dl-btn"><span class="material-icons">download</span>Download</a>
     </div>
-    <div class="link-block">
-      <div class="link-block-head stream"><span class="material-icons">stream</span>Streamable / Direct Link</div>
-      <div class="link-box">
-        <div class="link-url" id="streamUrlBox">${absoluteStreamUrl}</div>
-        <button class="copy-btn" onclick="copyLink('streamUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
-      </div>
-    </div>
-    <div class="link-block">
-      <div class="link-block-head download"><span class="material-icons">download</span>Direct Download Link</div>
-      <div class="link-box">
-        <div class="link-url" id="dlUrlBox">${absoluteDlUrl}</div>
-        <button class="copy-btn" onclick="copyLink('dlUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
-      </div>
-    </div>
+    <div class="link-block"><div class="link-box"><div class="link-url" id="sUrlBox">${window.location.origin+sUrl}</div><button class="copy-btn" onclick="copyLink('sUrlBox',this)">Copy</button></div></div>
   `;
   document.getElementById('panelOverlay').classList.add('open');
   document.getElementById('filePanel').classList.add('open');
 }
 
-function closePanel() {
-  document.getElementById('panelOverlay').classList.remove('open');
-  document.getElementById('filePanel').classList.remove('open');
-}
-
-// ── CUSTOM PLAYER ────────────────────────────────────────────────────
-let currentMediaIndex = -1;
-let idleTimeout;
-
-function playMedia(url, name, mimeType, index) {
-  currentMediaIndex = index !== undefined ? index : -1;
-  closePanel();
+// ── PLAYER ─────────────────────────────────────────────────────────────
+let curIdx = -1;
+function playMedia(url, name, mime, index) {
+  curIdx = index; closePanel();
   document.getElementById('playerTitle').textContent = name;
-  const container = document.getElementById('playerContainer');
-  const overlayCtrl = document.getElementById('overlayControls');
-  
-  if (mimeType && mimeType.startsWith('video/')) {
-    container.innerHTML = `
-      <video id="html5player" autoplay style="width:100%; max-height:75vh; outline:none; background:#000; cursor:pointer;" onclick="handleVideoClick()" ondblclick="handleVideoDblClick()">
-        <source src="${url}" type="${mimeType}">
-        Your browser does not support HTML5 video.
-      </video>`;
-    overlayCtrl.style.display = 'flex';
-    setupPlayerEvents();
-  } else {
-    container.innerHTML = `
-      <div style="padding:40px; width:100%; text-align:center;">
-        <audio id="html5player" autoplay style="width:80%; outline:none;">
-          <source src="${url}" type="${mimeType}">
-          Your browser does not support HTML5 audio.
-        </audio>
-      </div>`;
-    overlayCtrl.style.display = 'flex';
-    setupPlayerEvents();
-  }
+  const isV = mime.startsWith('video/');
+  document.getElementById('playerContainer').innerHTML = isV ?
+    `<video id="h5p" autoplay style="width:100%;"><source src="${url}" type="${mime}"></video>` :
+    `<div style="padding:40px;"><audio id="h5p" autoplay controls style="width:100%;"><source src="${url}" type="${mime}"></audio></div>`;
   document.getElementById('playerModal').classList.add('open');
-  resetIdleTimer();
+  setupPlayer();
 }
 
-function setupPlayerEvents() {
-  const player = document.getElementById('html5player');
-  if(!player) return;
-
-  const progBar = document.getElementById('progressBar');
-  const tCur = document.getElementById('timeCurrent');
-  const tDur = document.getElementById('timeDuration');
-  const playIcon = document.getElementById('playBtnIcon');
-
-  player.addEventListener('loadedmetadata', () => {
-    tDur.textContent = formatTime(player.duration);
-    progBar.max = player.duration;
+function setupPlayer() {
+  const p = document.getElementById('h5p'); if(!p) return;
+  p.addEventListener('timeupdate', () => {
+    document.getElementById('timeCurrent').textContent = fmtTime(p.currentTime);
+    document.getElementById('progressBar').value = (p.currentTime/p.duration)*100 || 0;
   });
-
-  player.addEventListener('timeupdate', () => {
-    tCur.textContent = formatTime(player.currentTime);
-    progBar.value = player.currentTime;
-    // Update played bar visually
-    const p = (player.currentTime / player.duration) * 100;
-    progBar.style.setProperty('--prog', (p || 0) + '%');
-  });
-
-  player.addEventListener('progress', () => {
-    if (player.buffered.length > 0 && player.duration > 0) {
-      // Get the furthest buffered point
-      const bufEnd = player.buffered.end(player.buffered.length - 1);
-      const b = (bufEnd / player.duration) * 100;
-      progBar.style.setProperty('--buf', (b || 0) + '%');
-    }
-  });
-
-  player.addEventListener('play', () => playIcon.textContent = 'pause');
-  player.addEventListener('pause', () => playIcon.textContent = 'play_arrow');
-  player.addEventListener('ended', () => playSibling(1)); // Auto-play next!
-}
-
-function formatTime(sec) {
-  if (isNaN(sec)) return "0:00";
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = Math.floor(sec % 60);
-  if (h > 0) return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  return `${m}:${s.toString().padStart(2,'0')}`;
-}
-
-function seekVideo(val) {
-  const player = document.getElementById('html5player');
-  if (player) player.currentTime = val;
-}
-
-let clickTimer = null;
-function handleVideoClick() {
-  if (isLocked) return;
-  if (clickTimer) clearTimeout(clickTimer);
-  clickTimer = setTimeout(() => {
-    clickTimer = null;
-    togglePlay();
-  }, 250);
-}
-
-function handleVideoDblClick() {
-  if (isLocked) return;
-  if (clickTimer) {
-    clearTimeout(clickTimer);
-    clickTimer = null;
-  }
-  toggleFullscreen();
-}
-
-function togglePlay() {
-  const player = document.getElementById('html5player');
-  if (!player) return;
-  if (player.paused) player.play();
-  else player.pause();
-}
-
-function toggleMute() {
-  const player = document.getElementById('html5player');
-  if (!player) return;
-  player.muted = !player.muted;
-  document.getElementById('muteBtnIcon').textContent = player.muted ? 'volume_off' : 'volume_up';
-}
-
-// ── NEW FEATURES: LOCK & ASPECT RATIO ──────────────────────────────
-let isLocked = false;
-function toggleLock() {
-  isLocked = !isLocked;
-  const wrapper = document.getElementById('videoWrapper');
-  if (isLocked) {
-    wrapper.classList.add('locked');
-  } else {
-    wrapper.classList.remove('locked');
-    resetIdleTimer();
-  }
-}
-
-let aspectModes = ['vid-fit-contain', 'vid-fit-cover', 'vid-fit-fill'];
-let currentAspectMode = 0;
-function cycleAspect() {
-  const player = document.getElementById('html5player');
-  if (!player) return;
-  
-  // Remove old class
-  player.classList.remove(aspectModes[currentAspectMode]);
-  
-  // Cycle to next mode
-  currentAspectMode = (currentAspectMode + 1) % aspectModes.length;
-  
-  // Add new class
-  player.classList.add(aspectModes[currentAspectMode]);
-  
-  // Show tooltip feedback (optional visual change)
-  const icon = document.getElementById('aspectIcon');
-  if(currentAspectMode === 0) { icon.textContent = 'aspect_ratio'; icon.parentElement.title = 'Default (Contain)'; }
-  else if(currentAspectMode === 1) { icon.textContent = 'crop_free'; icon.parentElement.title = 'Crop (Cover)'; }
-  else { icon.textContent = 'settings_overscan'; icon.parentElement.title = 'Stretch (Fill)'; }
-}
-
-function resetIdleTimer() {
-  const wrapper = document.getElementById('videoWrapper');
-  if(!wrapper) return;
-  wrapper.classList.remove('idle');
-  clearTimeout(idleTimeout);
-  idleTimeout = setTimeout(() => {
-    const player = document.getElementById('html5player');
-    // If locked, hide controls even if paused. If not locked, hide only if playing.
-    if (isLocked || (player && !player.paused)) {
-      wrapper.classList.add('idle');
-    }
-  }, 2500);
-}
-
-function skipMedia(seconds) {
-  const player = document.getElementById('html5player');
-  if (player) player.currentTime += seconds;
-  resetIdleTimer();
-}
-
-function toggleFullscreen() {
-  const wrapper = document.getElementById('videoWrapper');
-  if (!document.fullscreenElement) {
-    if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-    else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
-    else if (wrapper.msRequestFullscreen) wrapper.msRequestFullscreen();
-  } else {
-    if (document.exitFullscreen) document.exitFullscreen();
-    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    else if (document.msExitFullscreen) document.msExitFullscreen();
-  }
+  p.addEventListener('loadedmetadata', () => document.getElementById('timeDuration').textContent = fmtTime(p.duration));
+  p.addEventListener('ended', () => playSibling(1));
 }
 
 function playSibling(offset) {
-  if (currentMediaIndex === -1 || !allFiles) return;
-  let newIdx = currentMediaIndex + offset;
-  while (newIdx >= 0 && newIdx < allFiles.length) {
-    const f = allFiles[newIdx];
-    const isMedia = f.mimeType && (f.mimeType.startsWith('video/') || f.mimeType.startsWith('audio/'));
-    if (isMedia) {
-      const streamUrl = `${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
-      playMedia(streamUrl, f.name, f.mimeType, newIdx);
-      return;
-    }
-    newIdx += offset;
+  let ni = curIdx + offset;
+  if(ni >= 0 && ni < allFiles.length) {
+    const f = allFiles[ni];
+    if(f.mimeType.startsWith('video/') || f.mimeType.startsWith('audio/')) {
+      const url = `${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
+      playMedia(url, f.name, f.mimeType, ni);
+    } else playSibling(offset > 0 ? offset + 1 : offset - 1);
   }
 }
 
-function closePlayer() {
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(()=>{});
-  }
-  document.getElementById('playerModal').classList.remove('open');
-  document.getElementById('playerContainer').innerHTML = ''; 
-  currentMediaIndex = -1;
-  clearTimeout(idleTimeout);
+function fmtTime(s) {
+  if(isNaN(s)) return "0:00";
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
 }
 
-function copyLink(elId, btn) {
-  navigator.clipboard.writeText(document.getElementById(elId).textContent);
-  btn.classList.add('copied'); btn.innerHTML = '<span class="material-icons">check</span>Copied!';
-  setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<span class="material-icons">content_copy</span>Copy'; }, 2000);
-}
-
-// ── SETTINGS UI ──────────────────────────────────────────────────────
-function openSettings() {
-  document.getElementById('settingsModal').classList.add('open');
-  renderSettingsDrives();
-}
-function closeSettings() {
-  document.getElementById('settingsModal').classList.remove('open');
-  document.getElementById('addDriveForm').classList.remove('open');
-  resetAddForm();
-}
+// ── SETTINGS ─────────────────────────────────────────────────────────────
+let editId = null;
 function toggleAddForm() {
   document.getElementById('addDriveForm').classList.toggle('open');
-  if (!document.getElementById('addDriveForm').classList.contains('open')) {
-    resetAddForm();
-  }
+  if(!document.getElementById('addDriveForm').classList.contains('open')) resetForm();
+}
+function resetForm() {
+  editId = null; document.getElementById('formTitle').textContent = "Add New Drive";
+  ['inName','inClientId','inClientSecret','inRefreshToken','inRootId'].forEach(i => document.getElementById(i).value = '');
+}
+
+async function saveNewDrive() {
+  const body = {
+    name: document.getElementById('inName').value,
+    client_id: document.getElementById('inClientId').value,
+    client_secret: document.getElementById('inClientSecret').value,
+    refresh_token: document.getElementById('inRefreshToken').value,
+    root_id: document.getElementById('inRootId').value || 'root'
+  };
+  const pass = localStorage.getItem('db_pass') || '';
+  const r = await fetch(`${PROXY}/drives${editId?'/'+editId:''}?admin_pass=${pass}`, {
+    method: editId?'PUT':'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(r.ok) { alert("Saved!"); toggleAddForm(); fetchDrives().then(renderSettingsDrives); }
+  else alert("Error saving");
 }
 
 function renderSettingsDrives() {
-  const el = document.getElementById('driveListUI');
-  if(!drives.length) {
-    el.innerHTML = '<div style="color:var(--text2); padding:10px 0;">No drives configured yet.</div>';
-    return;
-  }
-  el.innerHTML = drives.map(d => `
+  document.getElementById('driveListUI').innerHTML = drives.map(d => `
     <div class="drive-item">
-      <div class="d-info">
-        <span class="material-icons" style="color:var(--primary)">cloud</span>
-        <strong>${d.name}</strong>
-        ${d.id === 'env-drive' ? '<span class="badge">ENV Default</span>' : ''}
+      <span>${d.name}</span>
+      <div>
+        <button class="btn-icon" onclick="editDrive('${d.id}')">edit</button>
+        <button class="btn-icon" onclick="delDrive('${d.id}')">delete</button>
       </div>
-      <div class="d-actions">
-        ${d.id !== 'env-drive' ? `
-          <button class="btn-icon" onclick="openEditForm('${d.id}')" title="Edit Drive"><span class="material-icons" style="color:var(--primary)">edit</span></button>
-          <button class="btn-icon" onclick="deleteDrive('${d.id}')" title="Delete Drive"><span class="material-icons" style="color:#ef5350">delete</span></button>
-        ` : ''}
-      </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
+function editDrive(id) {
+  const d = drives.find(x => x.id === id); if(!d) return;
+  editId = id; document.getElementById('formTitle').textContent = "Edit Drive";
+  document.getElementById('inName').value = d.name;
+  document.getElementById('inClientId').value = d.client_id;
+  document.getElementById('inClientSecret').value = d.client_secret;
+  document.getElementById('inRefreshToken').value = d.refresh_token;
+  document.getElementById('inRootId').value = d.root_id || '';
+  document.getElementById('addDriveForm').classList.add('open');
+}
+
+async function delDrive(id) {
+  if(!confirm("Delete?")) return;
+  const pass = localStorage.getItem('db_pass') || '';
+  await fetch(`${PROXY}/drives/${id}?admin_pass=${pass}`, {method: 'DELETE'});
+  fetchDrives().then(renderSettingsDrives);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function renderBreadcrumb() {
+  document.getElementById('breadcrumb').innerHTML = '<span onclick="renderRootDrives()">Home</span>' +
+    navStack.map((n, i) => ` / <span onclick="navTo(${i})">${n.name}</span>`).join('');
+}
+function navTo(i) { navStack = navStack.slice(0, i+1); listFolder(navStack[i].id); renderBreadcrumb(); }
+function showLoading() { document.getElementById('list').innerHTML = '<div class="state"><div class="spinner"></div></div>'; }
+function showError(m) { document.getElementById('list').innerHTML = `<div class="state">${m}</div>`; }
+function copyLink(id, b) { navigator.clipboard.writeText(document.getElementById(id).textContent); b.textContent = 'Copied!'; setTimeout(()=>b.textContent='Copy', 2000); }
+function closePanel() { document.getElementById('panelOverlay').classList.remove('open'); document.getElementById('filePanel').classList.remove('open'); }
+function openSettings() { document.getElementById('settingsModal').classList.add('open'); renderSettingsDrives(); }
+function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+function switchTab(id, el) {
+  document.querySelectorAll('.settings-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active');
+  document.querySelectorAll('.settings-pane').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active');
+}
 function onSearch(q) {
-  if(!currentDriveId) return; // disable search in root
-  if (!q.trim()) { renderFiles(allFiles); updateStats(allFiles); return; }
-  const r = allFiles.filter(f=>f.name.toLowerCase().includes(q.toLowerCase()));
-  renderFiles(r); updateStats(r);
+  const f = allFiles.filter(x => x.name.toLowerCase().includes(q.toLowerCase()));
+  renderFiles(f);
 }
-
-function showLoading(msg) {
-  document.getElementById('list').innerHTML = `<div class="state"><div class="spinner"></div><span>${msg}</span></div>`;
-  document.getElementById('stats').innerHTML = '<span>Loading…</span>';
-}
-function showError(msg) {
-  document.getElementById('list').innerHTML = `<div class="state"><span class="material-icons" style="font-size:40px;color:#ef5350">error_outline</span><div style="color:#ef9a9a">${msg}</div></div>`;
-  document.getElementById('stats').innerHTML = '<span>Error</span>';
-}
-
-// ── REAL-TIME TRAFFIC MONITOR ────────────────────────────────────────
-setInterval(async () => {
-  const start = performance.now();
-  let ms = 0;
-  let isError = false;
-  
-  if (currentDriveId) {
-    try {
-      const r = await fetch(`${PROXY}/ping/${currentDriveId}`);
-      if(r.ok) {
-        const d = await r.json();
-        ms = d.ms || Math.round(performance.now() - start);
-        if (d.status === 'error') isError = true;
-      } else isError = true;
-    } catch(e) { isError = true; }
-  } else {
-    try {
-      await fetch(`${PROXY}/drives`);
-      ms = Math.round(performance.now() - start);
-    } catch(e) { isError = true; }
-  }
-
-  const el = document.getElementById('pingText');
-  const parent = document.getElementById('trafficMonitor');
-  if (isError) {
-    el.textContent = 'Offline';
-    parent.style.color = '#ef5350';
-  } else {
-    el.textContent = ms + ' ms';
-    if (ms < 300) parent.style.color = '#4caf50';      // Green (Good)
-    else if (ms < 800) parent.style.color = '#ffb300'; // Yellow (Medium)
-    else parent.style.color = '#ef5350';               // Red (Slow)
-  }
-}, 2500);
+function togglePlay() { const p = document.getElementById('h5p'); if(p.paused) p.play(); else p.pause(); }
+function toggleFullscreen() { const w = document.getElementById('videoWrapper'); if(w.requestFullscreen) w.requestFullscreen(); }
+function closePlayer() { document.getElementById('playerModal').classList.remove('open'); document.getElementById('playerContainer').innerHTML = ''; }
+function resetIdleTimer() {}
+function updateStats(f) { document.getElementById('stats').textContent = `${f.length} items`; }
 
 init();
 </script>
-<!-- FOOTER -->
-<div class="footer-bar">
-  [DRIVEBASE PRO DEVLOPED BY VIJAYKUMAR/DOTSRIVAL]
-</div>
-
+<div class="footer-bar">[DRIVEBASE PRO DEVLOPED BY VIJAYKUMAR/DOTSRIVAL]</div>
 </body>
 </html>
