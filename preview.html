@@ -359,12 +359,32 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
             <input type="number" id="inLinkExpiry" placeholder="0" value="0" min="0">
             <span style="font-size:0.7rem; color:var(--text2);">Set to 0 to make links never expire. If set to e.g. 2, links will only work for 2 hours after they are copied.</span>
           </div>
+          <div class="form-group" style="flex-direction:row; align-items:center; gap:8px;">
+            <input type="checkbox" id="inDirectMode" style="width:18px; height:18px; accent-color:var(--primary);">
+            <label for="inDirectMode" style="font-weight:bold;">Enable Direct Download (Max Speed)</label>
+          </div>
           <div>
             <button class="btn btn-primary" onclick="saveGlobalSettings()">Save Security Settings</button>
           </div>
         </div>
       </div>
-      
+
+      <!-- TAB: USERS -->
+      <div id="tab-users" class="settings-pane">
+        <h3>👥 Registered Users</h3>
+        <p style="color:var(--text2); font-size:0.9rem; margin-bottom:16px;">Manage all users who have registered on your Drive Base.</p>
+        <div style="overflow-x:auto;">
+          <table class="user-table">
+            <thead>
+              <tr><th>Display Name</th><th>Username</th><th>Role</th></tr>
+            </thead>
+            <tbody id="userListBody">
+              <tr><td colspan="3" style="text-align:center; color:var(--text2);">Click this tab to load users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -466,11 +486,9 @@ async function handleAuth() {
 }
 
 function continueAsGuest() {
-  currentUser = { username: 'Guest', role: 'guest' };
   localStorage.setItem('drive_role', 'guest');
-  document.getElementById('authOverlay').style.display = 'none';
   document.getElementById('settingsGear').style.display = 'none';
-  initApp();
+  completeLogin({ username: 'Guest', display_name: 'Guest', role: 'guest' });
 }
 
 function handleLogout() {
