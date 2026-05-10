@@ -167,10 +167,43 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
 .settings-pane { display: none; }
 .settings-pane.active { display: block; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* AUTH OVERLAY */
+.auth-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.auth-card { background: var(--surface); padding: 32px; border-radius: 16px; width: 360px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid var(--divider); }
+.auth-card h2 { margin-bottom: 8px; text-align: center; color: var(--primary); }
+.auth-card p { text-align: center; color: var(--text2); font-size: 0.9rem; margin-bottom: 24px; }
+.auth-btn { width: 100%; margin-top: 12px; }
+.auth-footer { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text2); cursor: pointer; text-decoration: underline; }
+.auth-footer:hover { color: var(--text); }
 </style>
 </head>
-<body>
+<body onload="init()">
 
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <div align="center" style="margin-bottom:16px;">
+      <span class="material-icons" style="font-size: 48px; color: var(--primary);">account_circle</span>
+    </div>
+    <h2 id="authTitle">Welcome Back</h2>
+    <p id="authSubtitle">Login to access your Drive Base</p>
+    
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="authUser" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="authPass" placeholder="Enter password">
+    </div>
+    
+    <button class="btn btn-primary auth-btn" onclick="handleAuth()" id="authMainBtn">Login</button>
+    <button class="btn auth-btn" style="background:var(--surface2)" onclick="continueAsGuest()">Continue as Guest</button>
+    
+    <div class="auth-footer" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Register</div>
+  </div>
+</div>
 <div class="topbar">
   <div class="logo">
     <div class="logo-icon" style="background: linear-gradient(135deg, #1e88e5, #42a5f5); padding: 6px; border-radius: 8px;">
@@ -193,7 +226,8 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
       <span class="material-icons">search</span>
       <input type="text" placeholder="Search files..." oninput="onSearch(this.value)">
     </div>
-    <button class="settings-btn" onclick="openSettings()"><span class="material-icons">settings</span></button>
+    <button class="settings-btn" id="settingsGear" style="display:none;" title="Settings" onclick="openSettings()"><span class="material-icons">settings</span></button>
+    <button class="settings-btn" style="color:#ff5252;" title="Logout" onclick="handleLogout()"><span class="material-icons">logout</span></button>
   </div>
 </div>
 
@@ -382,13 +416,92 @@ let navStack = []; // [{id, name, isDriveRoot}]
 let allFiles = [];
 
 // ── INIT ─────────────────────────────────────────────────────────────
+// ── AUTH LOGIC ────────────────────────────────────────────────────────
+let currentUser = null;
+let isRegisterMode = false;
+
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('authTitle').textContent = isRegisterMode ? "Create Account" : "Welcome Back";
+  document.getElementById('authSubtitle').textContent = isRegisterMode ? "Register to save your drives" : "Login to access your Drive Base";
+  document.getElementById('authMainBtn').textContent = isRegisterMode ? "Register" : "Login";
+  document.getElementById('authToggle').textContent = isRegisterMode ? "Already have an account? Login" : "Don't have an account? Register";
+}
+
+async function handleAuth() {
+  const u = document.getElementById('authUser').value;
+  const p = document.getElementById('authPass').value;
+  if(!u || !p) return alert("Please fill all fields");
+  
+  const endpoint = isRegisterMode ? '/register' : '/login';
+  const r = await fetch(`${PROXY}${endpoint}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({username: u, password: p})
+  });
+  
+  const d = await r.json();
+  if(r.ok) {
+    if(isRegisterMode) {
+      alert("Registration successful! Please login.");
+      toggleAuthMode();
+    } else {
+      localStorage.setItem('drive_token', d.token);
+      localStorage.setItem('drive_user', d.username);
+      localStorage.setItem('drive_role', d.role);
+      if(d.role === 'admin') localStorage.setItem('drive_pass', p);
+      completeLogin(d);
+    }
+  } else {
+    alert(d.error || "Authentication failed");
+  }
+}
+
+function continueAsGuest() {
+  currentUser = { username: 'Guest', role: 'guest' };
+  localStorage.setItem('drive_role', 'guest');
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('settingsGear').style.display = 'none';
+  initApp();
+}
+
+function handleLogout() {
+  localStorage.clear();
+  location.reload();
+}
+
+function completeLogin(user) {
+  currentUser = user;
+  document.getElementById('authOverlay').style.display = 'none';
+  
+  // Only show settings gear if Admin
+  if(user.role === 'admin') {
+    document.getElementById('settingsGear').style.display = 'flex';
+  } else {
+    document.getElementById('settingsGear').style.display = 'none';
+  }
+  
+  initApp();
+}
+
 async function init() {
+  const token = localStorage.getItem('drive_token');
+  const role = localStorage.getItem('drive_role');
+  const user = localStorage.getItem('drive_user');
+  
+  if(token && role) {
+    completeLogin({token, role, username: user});
+  } else {
+    document.getElementById('authOverlay').style.display = 'flex';
+  }
+}
+
+async function initApp() {
   await fetchDrives();
   await fetchGlobalSettings();
   await fetchAnalytics();
   renderRootDrives();
   
-  // Auto refresh analytics every 10 seconds
   setInterval(fetchAnalytics, 10000);
   
   document.addEventListener('keydown', (e) => {
@@ -445,7 +558,8 @@ async function saveGlobalSettings() {
       direct_download_mode: document.getElementById('inDirectMode').checked,
       link_expiry_hours: parseFloat(document.getElementById('inLinkExpiry').value) || 0
     };
-    const r = await fetch(`${PROXY}/settings`, {
+    const pass = localStorage.getItem('drive_pass') || '';
+    const r = await fetch(`${PROXY}/settings?admin_pass=${pass}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(body)
@@ -491,7 +605,8 @@ async function saveNewDrive() {
     const url = editingDriveId ? `${PROXY}/drives/${editingDriveId}` : `${PROXY}/drives`;
     const method = editingDriveId ? 'PUT' : 'POST';
 
-    const r = await fetch(url, {
+    const pass = localStorage.getItem('drive_pass') || '';
+    const r = await fetch(`${url}?admin_pass=${pass}`, {
       method: method,
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(body)
