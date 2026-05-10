@@ -147,20 +147,37 @@ def save_db_drives(drives_list):
 
 def load_drives():
     global _drives
+    _drives = []
+    
+    # 1. Try loading from Database
     db_data = load_db_drives()
-    if db_data is not None:
+    if db_data:
         _drives = db_data
-    elif DRIVES_FILE.exists():
+        print(f"[Drives] Loaded {len(_drives)} drives from Database")
+    
+    # 2. If DB was empty or failed, try loading from local File
+    if not _drives and DRIVES_FILE.exists():
         try:
-            _drives = json.loads(DRIVES_FILE.read_text())
-        except:
-            _drives = []
-    # Load from env vars
+            file_data = json.loads(DRIVES_FILE.read_text())
+            if isinstance(file_data, list):
+                _drives = file_data
+                print(f"[Drives] Loaded {len(_drives)} drives from local drives.json")
+        except Exception as e:
+            print(f"[Drives] Error reading drives.json: {e}")
+
+    # 3. Always append/insert drives from Environment Variables (if not already present)
     cid = os.environ.get("CLIENT_ID")
     cs  = os.environ.get("CLIENT_SECRET")
     rt  = os.environ.get("REFRESH_TOKEN")
-    if cid and cs and rt and not any(d.get("client_id") == cid for d in _drives):
-        _drives.insert(0, {"id": "env-drive", "name": "My Drive (default)", "client_id": cid, "client_secret": cs, "refresh_token": rt})
+    if cid and cs and rt:
+        if not any(d.get("client_id") == cid for d in _drives):
+            _drives.insert(0, {
+                "id": "env-drive", 
+                "name": os.environ.get("DRIVE_NAME", "My Drive (default)"), 
+                "client_id": cid, 
+                "client_secret": cs, 
+                "refresh_token": rt
+            })
     for i in range(1, 20):
         pre = f"DRIVE{i}_"
         dcid = os.environ.get(pre + "CLIENT_ID")
