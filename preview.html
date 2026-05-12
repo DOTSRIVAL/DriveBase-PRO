@@ -157,6 +157,15 @@ body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--te
   .name { gap: 10px; font-size: 0.85rem; }
   .name .material-icons { font-size: 20px; }
 
+  /* MOBILE GRID OPTIMIZATION */
+  .list.grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; padding: 8px; }
+  .list.grid .list-row { height: 160px; padding: 12px; border-radius: 10px; }
+  .list.grid .list-row .name span:nth-child(1) { font-size: 40px; }
+  .list.grid .list-row .name span:nth-child(2) { font-size: 0.75rem; }
+
+  .selection-bar { bottom: 60px; padding: 8px 16px; gap: 12px; font-size: 0.85rem; border-radius: 12px; }
+  .sel-btn { padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; }
+
   .panel { width: 100%; border-radius: 20px 20px 0 0; height: 80vh; top: auto; bottom: 0; transform: translateY(100%); box-shadow: 0 -10px 30px rgba(0,0,0,0.6); }
   .panel.open { transform: translateY(0); }
   .panel-head { padding: 12px 16px; }
@@ -221,6 +230,29 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
 .settings-pane { display: none; }
 .settings-pane.active { display: block; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* GRID VIEW */
+.list.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; padding: 10px; }
+.list.grid .list-row { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 16px; background: var(--surface2); border: 1px solid var(--divider); height: 190px; position: relative; border-radius: 12px; transition: 0.2s; }
+.list.grid .list-row:hover { transform: translateY(-4px); background: var(--surface3); border-color: var(--primary); }
+.list.grid .list-row .name { flex-direction: column; gap: 8px; white-space: normal; height: 100%; justify-content: center; width: 100%; margin: 0; }
+.list.grid .list-row .name span:nth-child(1) { font-size: 52px; margin-bottom: 4px; }
+.list.grid .list-row .name span:nth-child(2) { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; font-weight: 500; }
+.list.grid .list-row .size, .list.grid .list-row .date { display: none; }
+.list.grid .list-header { display: none; }
+
+/* SELECTION BAR */
+.selection-bar { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%) translateY(150px); opacity: 0; pointer-events: none; background: #90caf9; color: #000; padding: 10px 24px; border-radius: 100px; display: flex; align-items: center; gap: 20px; z-index: 250; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 15px 35px rgba(0,0,0,0.7); font-weight: 700; width: max-content; max-width: 95vw; border: 2px solid rgba(255,255,255,0.2); }
+.selection-bar.active { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+.sel-btn { background: rgba(0,0,0,0.12); border: none; padding: 8px 18px; border-radius: 50px; cursor: pointer; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: 0.3s; color: #000; }
+.sel-btn:hover { background: rgba(0,0,0,0.2); transform: scale(1.05) translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.sel-btn:active { transform: scale(0.95); }
+
+
+/* CHECKBOX */
+.row-check { position: absolute; top: 12px; left: 12px; transform: scale(1.3); cursor: pointer; z-index: 10; accent-color: #000; }
+.list-row.selected { background: rgba(144, 202, 249, 0.12) !important; border: 1px solid var(--primary) !important; }
+.list.grid .row-check { top: 10px; left: 10px; }
 
 /* FOOTER BAR */
 .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--divider); padding: 8px; text-align: center; font-size: 0.75rem; color: var(--text2); letter-spacing: 1.5px; z-index: 99; font-weight: 700; text-transform: uppercase; }
@@ -308,7 +340,9 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
   <div class="toolbar">
     <div class="breadcrumb" id="breadcrumb"></div>
     <div class="toolbar-right">
-      <div class="sort-box" title="Sort Files">
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn-icon" id="viewToggle" onclick="toggleView()" title="Toggle Grid/List View" style="background:var(--surface2); width:36px; height:36px;"><span class="material-icons">grid_view</span></button>
+        <div class="sort-box" title="Sort Files">
         <span class="material-icons" style="font-size: 16px; color: var(--text2);">sort</span>
         <select id="sortSelect" onchange="onSortChange(this.value)">
           <option value="name_asc">Name (1-9, A-Z)</option>
@@ -322,11 +356,21 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
       <div class="stats" id="stats"></div>
     </div>
   </div>
+</div>
 
   <div class="list-header">
     <span>Name</span><span>Size</span><span>Modified</span>
   </div>
   <div class="list" id="list"></div>
+</div>
+
+<!-- SELECTION BAR -->
+<div class="selection-bar" id="selectionBar">
+  <span id="selCount">0 items selected</span>
+  <div style="display:flex; gap:12px;">
+    <button class="sel-btn" onclick="copySelectedLinks()"><span class="material-icons" style="font-size:20px;">content_copy</span> Copy Links</button>
+    <button class="sel-btn" onclick="clearSelection()" style="background:rgba(0,0,0,0.05);"><span class="material-icons" style="font-size:20px;">close</span></button>
+  </div>
 </div>
 
 <!-- FILE PANEL -->
@@ -514,7 +558,10 @@ let drives = [];
 let currentDriveId = null; 
 let navStack = []; // [{id, name, isDriveRoot}]
 let allFiles = [];
+let selectedFiles = new Set();
 let currentSort = 'name_asc';
+let isGridView = false;
+let isSearchMode = false;
 
 // ── INIT ─────────────────────────────────────────────────────────────
 // ── AUTH LOGIC ────────────────────────────────────────────────────────
@@ -650,6 +697,9 @@ async function initApp() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closePanel(); closeSettings(); closePlayer();
+    }
+    if (e.key === 'Enter' && document.activeElement.id === 'searchInput') {
+      triggerGlobalSearch();
     }
   });
 }
@@ -853,6 +903,7 @@ async function apiGet(driveId, path, queryParams) {
 function renderRootDrives() {
   currentDriveId = null;
   navStack = [];
+  clearSelection();
   renderBreadcrumb();
   document.getElementById('stats').innerHTML = `<span><strong>${drives.length}</strong> Drives connected</span>`;
 
@@ -898,6 +949,7 @@ async function openDriveRoot(id, name) {
 }
 
 async function listFolder(folderId) {
+  isSearchMode = false;
   showLoading('Loading files…');
   try {
     const data = await apiGet(currentDriveId, '/drive/v3/files', {
@@ -906,11 +958,43 @@ async function listFolder(folderId) {
       fields: 'files(id,name,mimeType,size,modifiedTime)'
     });
     allFiles = data.files || [];
+    clearSelection();
     sortAndRender();
     updateStats(allFiles);
   } catch(e) {
     showError('Failed to list folder: ' + e.message);
   }
+}
+
+async function triggerGlobalSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q || !currentDriveId) return;
+
+  isSearchMode = true;
+  showLoading(`Searching for "${q}" across drive...`);
+  try {
+    const r = await fetch(`${PROXY}/search?drive_id=${currentDriveId}&q=${encodeURIComponent(q)}`);
+    const data = await r.json();
+    if(data.error) throw new Error(data.error);
+    allFiles = data.files || [];
+    navStack = [{id: 'search', name: `Search: ${q}`}];
+    renderBreadcrumb();
+    clearSelection();
+    sortAndRender();
+    updateStats(allFiles);
+  } catch(e) {
+    showError('Search failed: ' + e.message);
+  }
+}
+
+function toggleView() {
+  isGridView = !isGridView;
+  const btn = document.getElementById('viewToggle').querySelector('.material-icons');
+  btn.textContent = isGridView ? 'view_list' : 'grid_view';
+  const list = document.getElementById('list');
+  if(isGridView) list.classList.add('grid');
+  else list.classList.remove('grid');
+  sortAndRender();
 }
 
 function onSortChange(val) {
@@ -984,21 +1068,81 @@ function fmtDate(iso) {
 function renderFiles(files) {
   const el = document.getElementById('list');
   if (!files.length) {
-    el.innerHTML = '<div class="state"><span class="material-icons" style="font-size:48px;color:var(--surface3)">folder_open</span><span>Folder is empty</span></div>';
+    el.innerHTML = `<div class="state"><span class="material-icons" style="font-size:48px;color:var(--surface3)">${isSearchMode?'search_off':'folder_open'}</span><span>${isSearchMode?'No results found':'Folder is empty'}</span></div>`;
     return;
   }
-  el.innerHTML = files.map((f,i) => {
+
+  // Filter Private Folders for Guests
+  const role = localStorage.getItem('drive_role');
+  const filtered = role === 'guest' ? files.filter(f => !f.name.includes('[PRIVATE]')) : files;
+
+  el.innerHTML = filtered.map((f,i) => {
     const ic = getIcon(f.mimeType);
     const isFolder = f.mimeType === FOLDER_MIME;
-    return `<div class="list-row" onclick="onItem(${i})">
+    const isSelected = selectedFiles.has(f.id);
+    const isPrivate = f.name.includes('[PRIVATE]');
+
+    return `<div class="list-row ${isSelected?'selected':''}" onclick="onItemClick(event, ${i})">
+      <input type="checkbox" class="row-check" ${isSelected?'checked':''} onclick="toggleSelect(event, '${f.id}')">
       <div class="name">
-        <span class="material-icons" style="color:${ic.color}">${ic.icon}</span>
-        <span title="${f.name}">${f.name}</span>
+        <span class="material-icons" style="color:${ic.color}">${isPrivate?'lock':ic.icon}</span>
+        <span title="${f.name}">${f.name.replace('[PRIVATE]', '')}</span>
       </div>
       <div class="size">${isFolder?'—':fmtSize(f.size)}</div>
       <div class="date">${fmtDate(f.modifiedTime)}</div>
     </div>`;
   }).join('');
+}
+
+function onItemClick(e, i) {
+  // If clicked on checkbox or its container, don't open panel
+  if(e.target.classList.contains('row-check')) return;
+  onItem(i);
+}
+
+function toggleSelect(e, id) {
+  e.stopPropagation();
+  if(selectedFiles.has(id)) selectedFiles.delete(id);
+  else selectedFiles.add(id);
+  updateSelectionUI();
+}
+
+function updateSelectionUI() {
+  const bar = document.getElementById('selectionBar');
+  const count = document.getElementById('selCount');
+  if(selectedFiles.size > 0) {
+    bar.classList.add('active');
+    count.textContent = `${selectedFiles.size} items selected`;
+  } else {
+    bar.classList.remove('active');
+  }
+
+  // Update existing rows visually without full re-render if possible,
+  // but for simplicity and correctness in this complex UI, we'll re-render
+  sortAndRender();
+}
+
+function clearSelection() {
+  selectedFiles.clear();
+  updateSelectionUI();
+}
+
+async function copySelectedLinks() {
+  let text = "";
+  for(let id of selectedFiles) {
+    const f = allFiles.find(file => file.id === id);
+    if(f && f.mimeType !== FOLDER_MIME) {
+      const url = `${window.location.origin}${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
+      text += `${url}\n`;
+    }
+  }
+  if(text) {
+    await navigator.clipboard.writeText(text);
+    alert("Copied all selected links to clipboard!");
+    clearSelection();
+  } else {
+    alert("No streamable files selected.");
+  }
 }
 
 function updateStats(files) {
@@ -1039,60 +1183,84 @@ function navTo(i) {
 }
 
 async function openPanel(f, index) {
-  let streamUrl = `${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
-  let dlUrl     = `${PROXY}/download?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
-  
-  // Fetch signature if expiry is active
-  try {
-    const r = await fetch(`${PROXY}/sign?drive_id=${currentDriveId}&id=${f.id}`);
-    const sigData = await r.json();
-    if(sigData.exp > 0) {
-      streamUrl += `&exp=${sigData.exp}&sig=${sigData.sig}`;
-      dlUrl     += `&exp=${sigData.exp}&sig=${sigData.sig}`;
-    }
-  } catch(e) { console.error("Could not sign link"); }
-
+  const isFolder = f.mimeType === FOLDER_MIME;
   const isMedia   = f.mimeType && (f.mimeType.startsWith('video/') || f.mimeType.startsWith('audio/'));
-  const absoluteStreamUrl = window.location.origin + streamUrl;
-  const absoluteDlUrl     = window.location.origin + dlUrl;
+  const role = localStorage.getItem('drive_role');
 
-  // Store URLs for the play function to use
-  f.tempStreamUrl = streamUrl;
-
-  document.getElementById('panelTitle').textContent = f.name;
-  document.getElementById('panelBody').innerHTML = `
+  let content = `
     <div class="panel-meta">
-      <span class="lbl">Size</span><span class="val">${fmtSize(f.size)}</span>
+      <span class="lbl">Size</span><span class="val">${isFolder?'—':fmtSize(f.size)}</span>
       <span class="lbl">Modified</span><span class="val">${fmtDate(f.modifiedTime)}</span>
       <span class="lbl">Type</span><span class="val">${f.mimeType||'—'}</span>
-    </div>
-    <div class="action-btns">
-      ${isMedia
-        ? `<button class="action-btn stream-btn" onclick="playFromIndex(${index})"><span class="material-icons">play_circle</span>Stream / Play</button>`
-        : `<button class="action-btn stream-btn" onclick="window.open('${streamUrl}','_blank')"><span class="material-icons">open_in_new</span>Open / Stream</button>`}
-      <a href="${dlUrl}" download="${f.name}" class="action-btn dl-btn"><span class="material-icons">download</span>Download</a>
-      ${isMedia ? `
-        <button class="action-btn drive-btn" onclick="openMXPlayer('${absoluteStreamUrl}', '${f.name}')" style="background:#2196f3; color:#fff;"><span class="material-icons">play_arrow</span>MX Player</button>
-        <button class="action-btn drive-btn" onclick="openVLCPlayer('${absoluteStreamUrl}')" style="background:#ff9800; color:#fff;"><span class="material-icons">play_circle_outline</span>VLC Player</button>
-      ` : ''}
-    </div>
-    <div class="link-block">
-      <div class="link-block-head stream"><span class="material-icons">stream</span>Streamable / Direct Link</div>
-      <div class="link-box">
-        <div class="link-url" id="streamUrlBox">${absoluteStreamUrl}</div>
-        <button class="copy-btn" onclick="copyLink('streamUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
+    </div>`;
+
+  if(isFolder) {
+    if(role === 'admin') {
+      const isPrivate = f.name.includes('[PRIVATE]');
+      content += `
+        <div style="margin-top:20px; background:var(--surface2); padding:12px; border-radius:8px; border:1px solid var(--divider);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.85rem; font-weight:500;">Private Folder</span>
+            <span class="material-icons" style="color:${isPrivate?'var(--primary)':'var(--text2)'}; cursor:pointer;" onclick="toggleFolderPrivacy('${f.id}', '${f.name}', ${isPrivate})">${isPrivate?'lock':'lock_open'}</span>
+          </div>
+          <p style="font-size:0.7rem; color:var(--text2); margin-top:6px;">* Hidden from Guest users if enabled.</p>
+        </div>
+      `;
+    }
+    content += `<button class="action-btn stream-btn" style="margin-top:16px;" onclick="onItem(${index})"><span class="material-icons">folder_open</span>Open Folder</button>`;
+  } else {
+    let streamUrl = `${PROXY}/stream?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
+    let dlUrl     = `${PROXY}/download?drive_id=${currentDriveId}&id=${f.id}&name=${encodeURIComponent(f.name)}`;
+
+    try {
+      const r = await fetch(`${PROXY}/sign?drive_id=${currentDriveId}&id=${f.id}`);
+      const sigData = await r.json();
+      if(sigData.exp > 0) {
+        streamUrl += `&exp=${sigData.exp}&sig=${sigData.sig}`;
+        dlUrl     += `&exp=${sigData.exp}&sig=${sigData.sig}`;
+      }
+    } catch(e) { console.error("Could not sign link"); }
+
+    const absoluteStreamUrl = window.location.origin + streamUrl;
+    const absoluteDlUrl     = window.location.origin + dlUrl;
+    f.tempStreamUrl = streamUrl;
+
+    content += `
+      <div class="action-btns">
+        ${isMedia
+          ? `<button class="action-btn stream-btn" onclick="playFromIndex(${index})"><span class="material-icons">play_circle</span>Stream / Play</button>`
+          : `<button class="action-btn stream-btn" onclick="window.open('${streamUrl}','_blank')"><span class="material-icons">open_in_new</span>Open / Stream</button>`}
+        <a href="${dlUrl}" download="${f.name}" class="action-btn dl-btn"><span class="material-icons">download</span>Download</a>
+        ${isMedia ? `
+          <button class="action-btn drive-btn" onclick="openMXPlayer('${absoluteStreamUrl}', '${f.name}')" style="background:#2196f3; color:#fff;"><span class="material-icons">play_arrow</span>MX Player</button>
+          <button class="action-btn drive-btn" onclick="openVLCPlayer('${absoluteStreamUrl}')" style="background:#ff9800; color:#fff;"><span class="material-icons">play_circle_outline</span>VLC Player</button>
+        ` : ''}
       </div>
-    </div>
-    <div class="link-block">
-      <div class="link-block-head download"><span class="material-icons">download</span>Direct Download Link</div>
-      <div class="link-box">
-        <div class="link-url" id="dlUrlBox">${absoluteDlUrl}</div>
-        <button class="copy-btn" onclick="copyLink('dlUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
+      <div class="link-block">
+        <div class="link-block-head stream"><span class="material-icons">stream</span>Streamable / Direct Link</div>
+        <div class="link-box">
+          <div class="link-url" id="streamUrlBox">${absoluteStreamUrl}</div>
+          <button class="copy-btn" onclick="copyLink('streamUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
+        </div>
       </div>
-    </div>
-  `;
+      <div class="link-block">
+        <div class="link-block-head download"><span class="material-icons">download</span>Direct Download Link</div>
+        <div class="link-box">
+          <div class="link-url" id="dlUrlBox">${absoluteDlUrl}</div>
+          <button class="copy-btn" onclick="copyLink('dlUrlBox',this)"><span class="material-icons">content_copy</span>Copy</button>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('panelTitle').textContent = f.name.replace('[PRIVATE]', '');
+  document.getElementById('panelBody').innerHTML = content;
   document.getElementById('panelOverlay').classList.add('open');
   document.getElementById('filePanel').classList.add('open');
+}
+
+async function toggleFolderPrivacy(id, name, wasPrivate) {
+  alert("Privacy logic: In a real environment, this would rename the folder on Google Drive adding '[PRIVATE]' tag. For now, guests will not see folders with that tag.");
 }
 
 function playFromIndex(index) {
