@@ -372,30 +372,6 @@ async def list_files(drive_id: str, folder_id: str = "root", orderBy: str = "fol
         print(f"[List] Error: {e}")
         return JSONResponse({"error": str(e)}, status_code=500, headers=CORS)
 
-@app.get("/search")
-async def search_drive(drive_id: str, q: str):
-    try:
-        token = await get_token(drive_id)
-        async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.get(
-                "https://www.googleapis.com/drive/v3/files",
-                params={
-                    "q": f"name contains '{q}' and trashed=false",
-                    "fields": "files(id,name,mimeType,size,modifiedTime)",
-                    "pageSize": "100",
-                    "supportsAllDrives": "true",
-                    "includeItemsFromAllDrives": "true"
-                },
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            data = r.json()
-            if r.status_code != 200:
-                error_msg = data.get("error", {}).get("message", "Search failed")
-                return JSONResponse({"error": error_msg}, status_code=r.status_code, headers=CORS)
-            return JSONResponse(data, headers=CORS)
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500, headers=CORS)
-
 @app.get("/meta/{drive_id}/{file_id}")
 async def get_meta(drive_id: str, file_id: str):
     try:
