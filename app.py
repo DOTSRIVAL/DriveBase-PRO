@@ -167,7 +167,7 @@ def save_db_settings(settings_dict):
         elif mongo_col_drives is not None:
             mongo_col_drives.update_one({"_id": "settings"}, {"$set": {"data": settings_dict}}, upsert=True)
     except Exception as e:
-        pass
+        print(f"[DB] Error saving settings: {e}")
 
 def save_db_drives(drives_list):
     try:
