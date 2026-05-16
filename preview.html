@@ -380,15 +380,21 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
             <input type="text" id="inClientSecret" placeholder="GOCSPX-...">
           </div>
           <div class="form-group">
-            <label>Refresh Token</label>
+            <label>Refresh Token <span style="font-size:0.7rem;color:var(--text2)">(Optional if using Sign-in below)</span></label>
             <input type="text" id="inRefreshToken" placeholder="1//0g...">
           </div>
           <div class="form-group">
             <label>Root Folder ID (Optional)</label>
             <input type="text" id="inRootId" placeholder="root">
           </div>
+          <div style="font-size:0.8rem; color:var(--text2); background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; margin-top:4px;">
+            <b>Easy Google Sign-In:</b> Fill Client ID and Secret, then click below. Make sure to add <br><code style="color:var(--primary); user-select:all;" id="lblRedirectUri"></code><br> to your Google Cloud Console Authorized Redirect URIs.
+          </div>
           <div style="display:flex; gap:10px; margin-top:8px;">
-            <button id="saveDriveBtn" class="btn btn-primary" onclick="saveNewDrive()">Save Drive</button>
+            <button class="btn" style="background:#fff; color:#000; font-weight:bold;" onclick="oauthSignIn(event)">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.222 0-9.649-3.342-11.123-7.828l-6.56 4.814C9.656 39.663 16.318 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg> Sign in
+            </button>
+            <button id="saveDriveBtn" class="btn btn-primary" onclick="saveNewDrive()">Save manually</button>
             <button class="btn" style="background:var(--surface3)" onclick="toggleAddForm()">Cancel</button>
           </div>
         </div>
@@ -1369,11 +1375,65 @@ function closeSettings() {
   resetAddForm();
 }
 function toggleAddForm() {
-  document.getElementById('addDriveForm').classList.toggle('open');
-  if (!document.getElementById('addDriveForm').classList.contains('open')) {
+  const addForm = document.getElementById('addDriveForm');
+  addForm.classList.toggle('open');
+  if (!addForm.classList.contains('open')) {
     resetAddForm();
+  } else {
+    document.getElementById('lblRedirectUri').innerText = window.location.origin + "/oauth_callback";
   }
 }
+
+function oauthSignIn(e) {
+  e.preventDefault();
+  const clientId = document.getElementById('inClientId').value.trim();
+  
+  if(!clientId) {
+    alert("Please enter your Google Client ID first.");
+    return;
+  }
+  
+  const redirectUri = window.location.origin + "/oauth_callback";
+  const scope = "https://www.googleapis.com/auth/drive";
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
+  
+  window.open(authUrl, 'google_oauth', 'width=500,height=600');
+}
+
+window.addEventListener('message', async (event) => {
+  if (event.data && event.data.type === 'oauth_callback') {
+    if (event.data.error) {
+      alert("OAuth Error: " + event.data.error);
+      return;
+    }
+    
+    const code = event.data.code;
+    const clientId = document.getElementById('inClientId').value.trim();
+    const clientSecret = document.getElementById('inClientSecret').value.trim();
+    const redirectUri = window.location.origin + "/oauth_callback";
+    
+    try {
+      const pass = localStorage.getItem('drive_pass') || '';
+      const r = await fetch(`${PROXY}/oauth/exchange?admin_pass=${pass}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code: code,
+          redirect_uri: redirectUri
+        })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || "Failed to exchange token");
+      
+      document.getElementById('inRefreshToken').value = data.refresh_token;
+      alert("Google Drive authorized successfully! Now click 'Save manually' to finish.");
+    } catch(e) {
+      alert("OAuth Exchange Error: " + e.message);
+    }
+  }
+});
 
 function renderSettingsDrives() {
   const el = document.getElementById('driveListUI');
