@@ -356,6 +356,7 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
         <div class="settings-tab" onclick="switchTab('tab-analytics', this)">📊 Analytics</div>
         <div class="settings-tab" onclick="switchTab('tab-security', this)">🔒 Link Security</div>
         <div class="settings-tab" onclick="switchTab('tab-users', this); fetchUsers()">👥 Users</div>
+        <div class="settings-tab" onclick="switchTab('tab-oauth', this)">🔑 OAuth App</div>
       </div>
       
       <!-- TAB: DRIVES -->
@@ -372,14 +373,6 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
             <input type="text" id="inName" placeholder="My Drive">
           </div>
           <div class="form-group">
-            <label>Client ID</label>
-            <input type="text" id="inClientId" placeholder="xxx.apps.googleusercontent.com">
-          </div>
-          <div class="form-group">
-            <label>Client Secret</label>
-            <input type="text" id="inClientSecret" placeholder="GOCSPX-...">
-          </div>
-          <div class="form-group">
             <label>Refresh Token <span style="font-size:0.7rem;color:var(--text2)">(Optional if using Sign-in below)</span></label>
             <input type="text" id="inRefreshToken" placeholder="1//0g...">
           </div>
@@ -388,7 +381,7 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
             <input type="text" id="inRootId" placeholder="root">
           </div>
           <div style="font-size:0.8rem; color:var(--text2); background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; margin-top:4px;">
-            <b>Easy Google Sign-In:</b> Fill Client ID and Secret, then click below. Make sure to add <br><code style="color:var(--primary); user-select:all;" id="lblRedirectUri"></code><br> to your Google Cloud Console Authorized Redirect URIs.
+            <b>Easy Google Sign-In:</b> Click below to login with Google. The Global OAuth Client ID and Secret will be used automatically.
           </div>
           <div style="display:flex; gap:10px; margin-top:8px;">
             <button class="btn" style="background:#fff; color:#000; font-weight:bold;" onclick="oauthSignIn(event)">
@@ -463,6 +456,27 @@ input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
               <tr><td colspan="3" style="text-align:center; color:var(--text2);">Click this tab to load users...</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- TAB: OAUTH APP -->
+      <div id="tab-oauth" class="settings-pane">
+        <h3>Global Google OAuth App</h3>
+        <p style="color:var(--text2); font-size:0.9rem; margin-bottom:15px;">Configure your Global Google Cloud App here. This Client ID and Secret will be saved in the database and used securely whenever anyone connects a new Google Drive.</p>
+        <div class="form-group">
+          <label>Global OAuth Client ID</label>
+          <input type="text" id="inGlobalClientId" placeholder="xxxx-yyyy.apps.googleusercontent.com">
+        </div>
+        <div class="form-group pass-wrapper">
+          <label>Global OAuth Client Secret</label>
+          <input type="password" id="inGlobalClientSecret" placeholder="GOCSPX-...">
+          <span class="material-icons pass-eye" onclick="togglePass('inGlobalClientSecret', this)">visibility</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text2); background:rgba(255,255,255,0.05); padding:8px; border-radius:4px; margin-top:4px;">
+          Make sure to add <code style="color:var(--primary); user-select:all;" id="lblSettingsRedirectUri"></code> to your Google Cloud Console Authorized Redirect URIs.
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:15px;">
+          <button class="btn btn-primary" onclick="saveGlobalSettings()">Save OAuth App Settings</button>
         </div>
       </div>
 
@@ -670,6 +684,8 @@ async function fetchGlobalSettings() {
       document.getElementById('inSpeedLimit').value = s.speed_limit_mb || 0;
       document.getElementById('inDirectMode').checked = s.direct_download_mode || false;
       document.getElementById('inLinkExpiry').value = s.link_expiry_hours || 0;
+      document.getElementById('inGlobalClientId').value = s.oauth_client_id || "";
+      document.getElementById('inGlobalClientSecret').value = s.oauth_client_secret || "";
     }
   } catch(e) { console.error("Could not fetch settings", e); }
 }
@@ -704,7 +720,9 @@ async function saveGlobalSettings() {
     const body = {
       chunk_size_mb: parseInt(document.getElementById('inChunkSize').value) || 2,
       speed_limit_mb: parseFloat(document.getElementById('inSpeedLimit').value) || 0,
-      link_expiry_hours: parseFloat(document.getElementById('inLinkExpiry').value) || 0
+      link_expiry_hours: parseFloat(document.getElementById('inLinkExpiry').value) || 0,
+      oauth_client_id: document.getElementById('inGlobalClientId').value.trim(),
+      oauth_client_secret: document.getElementById('inGlobalClientSecret').value.trim()
     };
     const pass = localStorage.getItem('drive_pass') || '';
     const r = await fetch(`${PROXY}/settings?admin_pass=${pass}`, {
@@ -746,18 +764,14 @@ async function saveNewDrive() {
   try {
     const body = {
       name: document.getElementById('inName').value,
-      client_id: document.getElementById('inClientId').value,
-      client_secret: document.getElementById('inClientSecret').value,
       refresh_token: document.getElementById('inRefreshToken').value,
-      root_id: document.getElementById('inRootId').value || 'root'
+      root_id: document.getElementById('inRootId').value || 'root',
+      client_id: '',
+      client_secret: ''
     };
 
     const url = editingDriveId ? `${PROXY}/drives/${editingDriveId}` : `${PROXY}/drives`;
     const method = editingDriveId ? 'PUT' : 'POST';
-
-    // Save Client ID and Secret to localStorage for convenience
-    localStorage.setItem('saved_client_id', body.client_id);
-    localStorage.setItem('saved_client_secret', body.client_secret);
 
     const pass = localStorage.getItem('drive_pass') || '';
     const r = await fetch(`${url}?admin_pass=${pass}`, {
@@ -786,8 +800,6 @@ function resetAddForm() {
   editingDriveId = null;
   document.getElementById('formHeader').textContent = 'Add New Google Drive';
   document.getElementById('inName').value = '';
-  document.getElementById('inClientId').value = localStorage.getItem('saved_client_id') || '';
-  document.getElementById('inClientSecret').value = localStorage.getItem('saved_client_secret') || '';
   document.getElementById('inRefreshToken').value = '';
   document.getElementById('inRootId').value = 'root';
   document.getElementById('saveDriveBtn').textContent = 'Save manually';
@@ -801,8 +813,6 @@ function openEditForm(id) {
   document.getElementById('addDriveForm').classList.add('open');
   document.getElementById('formHeader').textContent = 'Edit Google Drive';
   document.getElementById('inName').value = drive.name || '';
-  document.getElementById('inClientId').value = drive.client_id || '';
-  document.getElementById('inClientSecret').value = drive.client_secret || '';
   document.getElementById('inRefreshToken').value = drive.refresh_token || '';
   document.getElementById('inRootId').value = drive.root_id || 'root';
 
@@ -1378,66 +1388,76 @@ function closeSettings() {
   document.getElementById('addDriveForm').classList.remove('open');
   resetAddForm();
 }
+
+function renderSettingsDrives() {
+  const el = document.getElementById('driveListUI');
+  if(!drives.length) {
+    el.innerHTML = '<div style="color:var(--text2); padding:10px 0;">No drives configured yet.</div>';
+    return;
+  }
+  el.innerHTML = drives.map(d => `
+    <div class="drive-item">
+      <div class="d-info">
+        <span class="material-icons" style="color:var(--primary)">cloud</span>
+        <strong>${d.name}</strong>
+        ${d.id === 'env-drive' ? '<span class="badge">ENV Default</span>' : ''}
+      </div>
+      <div class="d-actions">
+        ${d.id !== 'env-drive' ? `
+          <button class="btn" style="padding:4px 8px; background:var(--surface3)" onclick="openEditForm('${d.id}')"><span class="material-icons" style="font-size:16px;">edit</span></button>
+          <button class="btn" style="padding:4px 8px; background:#ef535022; color:#ef5350;" onclick="deleteDrive('${d.id}')"><span class="material-icons" style="font-size:16px;">delete</span></button>
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+}
 function toggleAddForm() {
   const addForm = document.getElementById('addDriveForm');
   addForm.classList.toggle('open');
   if (!addForm.classList.contains('open')) {
     resetAddForm();
-  } else {
-    document.getElementById('lblRedirectUri').innerText = window.location.origin + "/oauth_callback";
   }
 }
 
 function oauthSignIn(e) {
   e.preventDefault();
-  const clientId = document.getElementById('inClientId').value.trim();
   
-  if(!clientId) {
-    alert("Please enter your Google Client ID first.");
-    return;
-  }
-  
-  const redirectUri = window.location.origin + "/oauth_callback";
-  const scope = "https://www.googleapis.com/auth/drive";
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=consent`;
-  
-  window.open(authUrl, 'google_oauth', 'width=500,height=600');
+  const redirectUri = window.location.origin + "/preview.html";
+  fetch(`${PROXY}/oauth/url?redirect_uri=${encodeURIComponent(redirectUri)}`)
+    .then(r => r.json())
+    .then(d => {
+       if(d.error) return alert("Error: " + d.error);
+       localStorage.setItem('oauth_in_progress', 'true');
+       window.location.href = d.url;
+    })
+    .catch(err => alert("Failed to start OAuth: " + err.message));
 }
 
-window.addEventListener('message', async (event) => {
-  if (event.data && event.data.type === 'oauth_callback') {
-    if (event.data.error) {
-      alert("OAuth Error: " + event.data.error);
-      return;
-    }
-    
-    const code = event.data.code;
-    const clientId = document.getElementById('inClientId').value.trim();
-    const clientSecret = document.getElementById('inClientSecret').value.trim();
-    const redirectUri = window.location.origin + "/oauth_callback";
-    
-    try {
-      const pass = localStorage.getItem('drive_pass') || '';
-      const r = await fetch(`${PROXY}/oauth/exchange?admin_pass=${pass}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          code: code,
-          redirect_uri: redirectUri
-        })
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Failed to exchange token");
+function handleOAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if(code && localStorage.getItem('oauth_in_progress')) {
+      localStorage.removeItem('oauth_in_progress');
+      window.history.replaceState({}, document.title, window.location.pathname);
       
-      document.getElementById('inRefreshToken').value = data.refresh_token;
-      alert("Google Drive authorized successfully! Now click 'Save manually' to finish.");
-    } catch(e) {
-      alert("OAuth Exchange Error: " + e.message);
-    }
+      const redirectUri = window.location.origin + "/preview.html";
+      const pass = localStorage.getItem('drive_pass') || '';
+      
+      fetch(`${PROXY}/oauth/exchange?admin_pass=${pass}`, {
+         method: 'POST',
+         headers: {'Content-Type': 'application/json'},
+         body: JSON.stringify({code: code, redirect_uri: redirectUri})
+      }).then(r => r.json()).then(d => {
+         if(d.error) return alert("OAuth Error: " + d.error);
+         
+         openSettings();
+         switchTab('tab-drives', document.querySelector('.settings-tab'));
+         toggleAddForm();
+         document.getElementById('inRefreshToken').value = d.refresh_token;
+         alert("Google Drive authorized successfully! Enter a Drive Name and click Save.");
+      }).catch(err => alert("OAuth Exchange Failed: " + err.message));
   }
-});
+}
 
 function renderSettingsDrives() {
   const el = document.getElementById('driveListUI');
@@ -1519,6 +1539,11 @@ setInterval(async () => {
     else if (ms < 800) parent.style.color = '#ffb300'; // Yellow (Medium)
     else parent.style.color = '#ef5350';               // Red (Slow)
   }
+
+  const lbl = document.getElementById('lblSettingsRedirectUri');
+  if(lbl) lbl.innerText = window.location.origin + "/preview.html";
+
+  handleOAuthCallback();
 }, 2500);
 
 init();
