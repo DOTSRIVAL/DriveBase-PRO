@@ -1,133 +1,185 @@
+---
+title: DriveBase PRO
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: true
+---
+
 <div align="center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" width="80" alt="Google Drive Logo">
-  <h1>Drive Base PRO 🚀</h1>
+  <h1>DriveBase PRO 🚀</h1>
   <p><b>The Ultimate High-Speed Google Drive Proxy & Streaming Platform</b></p>
-  <p><i>Bypass Google's Quota Limits. Stream 1080p Flawlessly. Protect Your Links.</i></p>
+  <p><i>One-Click Google Sign-In · Database Persistence · Multi-Drive · Always Online</i></p>
 </div>
 
 <p align="center">
-  <b><a href="YOUR_HUGGINGFACE_SPACE_URL_HERE">🔥 Click Here for Live Demo Preview 🔥</a></b>
+  <b><a href="https://dotsrival-reclone.hf.space">🔥 Live Demo 🔥</a></b>
 </p>
 
 <hr>
 
-## 🌟 What is Drive Base PRO?
+## 🌟 What is DriveBase PRO?
 
-Drive Base PRO is a completely custom-built, heavily optimized proxy engine for Google Drive. Designed and engineered by **DOTSRIVAL**, this platform uses **Asynchronous Python (aiohttp & FastAPI)** to act as a robust, high-performance streaming proxy.
+DriveBase PRO is a completely custom-built, heavily optimized **Google Drive proxy engine** designed and engineered by **DOTSRIVAL**. Built on **FastAPI + asyncio + httpx**, it acts as a robust high-performance streaming server.
 
-It is specifically designed for **Anime/Movie websites, File Hosts, and heavy downloaders** who need to bypass Google Drive's strict *"Download Quota Exceeded"* and *"Automated Bot"* errors. 
+Designed for **Anime/Movie websites, File Hosts, and heavy downloaders** who need to bypass Google Drive's strict quota errors and serve files at maximum speed.
+
+---
 
 ## ✨ Key Features
 
-- 🚀 **Blazing Fast `aiohttp` Engine:** Pumps out speeds up to **72 Mbps (9MB/s)** for Server-to-Server transfers (like Remote Uploads to Vidoza, Filemoon, DoodStream, etc.).
-- 🛡️ **Anti-Ban Proxy:** Fully proxies the file stream. Bypasses the strict Google API "Bot/Automated Queries" check. Your users will never see the Google Virus Scan warning again.
-- 💾 **Database Persistence:** Add your Google Drives via the UI and they will save permanently to **PostgreSQL (NeonDB) or MongoDB**. Perfect for ephemeral platforms like Hugging Face Spaces.
-- 📊 **Real-Time Analytics:** Built-in Live Traffic Monitor. Watch your data transfer (GBs) and Active Unique Users count tick up in real-time right from the Top Bar.
-- 🔒 **Secure Expiring Links:** Stop link-stealers in their tracks! Enable HMAC-signed Link Expiration. Generate links that automatically expire after X hours.
-- 🛑 **Global Traffic Controller:** Set a hard speed limit (e.g., 1.5 MB/s) per connection to save your server bandwidth and prevent abuse.
-- 🔒 **Multi-User System:** Built-in **Login & Register** system. Support for Admin, Registered Users, and Guest access.
-- ⚙️ **Admin Protection:** Hide your sensitive settings from the public. Only the Admin can see and modify Drive configurations.
-- 👥 **User Management Dashboard:** Exclusive Admin tab to view a list of all registered users (Username & Display Name) directly from the database.
-- 📱 **Pro UI Interface:** Modern, dark-mode, fully mobile-responsive interface with a tabbed Settings dashboard.
-- 🎬 **In-Browser Player:** Stream 1080p media natively inside the browser without downloading!
+| Feature | Description |
+|---|---|
+| 🔑 **One-Click Google Sign-In** | Add Google Drives using OAuth2 — no manual token generation needed |
+| 🌐 **Global OAuth App** | Set Client ID & Secret once in Settings → all users reuse it |
+| 💾 **Full Database Persistence** | All drives, users, and settings saved permanently to **PostgreSQL / MongoDB** |
+| 🚀 **High-Speed Proxy** | Async streaming engine; supports `Range` headers for IDM/ADM multi-connection downloads |
+| 📊 **Real-Time Analytics** | Live data transfer (MB/GB) and unique active user count in the top bar |
+| 🔒 **Expiring Signed Links** | HMAC-signed URLs that expire after X hours — stop link stealers |
+| 🛑 **Speed Limiter** | Set per-connection bandwidth cap (MB/s) to prevent server abuse |
+| 🎬 **In-Browser Player** | Stream 1080p video natively — no download needed |
+| 👥 **Multi-User Auth** | Login / Register system with Admin, User, and Guest roles |
+| 🔐 **Admin-Only Settings** | Settings gear hidden from guests and users — only Admin can configure |
+| 🛡️ **Anti-Bot Proxy** | Fully proxied stream; bypasses Google's "Automated Bot" quota errors |
+| ⏰ **Keep-Alive** | Self-ping every 25 minutes to prevent Hugging Face sleep mode |
+
+---
+
+## 🔑 New: Global OAuth2 — One Setup, Unlimited Drives
+
+No more manual `Refresh Token` generation! DriveBase PRO now supports a **centralized OAuth2 flow**:
+
+1. **Admin** goes to Settings → **🔑 OAuth App** tab
+2. Enters the **Global Client ID** and **Client Secret** (from Google Cloud Console) — saved to DB
+3. When **anyone** adds a new drive → clicks **🔑 Fill from OAuth App** → credentials auto-fill
+4. Clicks **Sign in with Google** → picks Gmail account → grants permission
+5. `Refresh Token` is automatically retrieved and filled → click **Save Drive** → done!
+
+Multiple Gmail accounts can be connected — each gets its own drive entry with its own refresh token.
 
 ---
 
 ## 🔐 Authentication & User Roles
 
-Drive Base PRO features a robust, multi-tier user management system:
+| Role | Access |
+|---|---|
+| **Admin** | Full access — Settings, Drive management, User list, OAuth config |
+| **Registered User** | Browse and stream files — no settings access |
+| **Guest** | Browse and stream files without an account |
 
-1. **Admin Gateway:** Access full control by configuring `ADMIN_USER` and `ADMIN_PASS` in Hugging Face Secrets.
-   - *Example:* `ADMIN_USER = admin@gmail.com`, `ADMIN_PASS = admin123`.
-   - **Note:** Only the Admin login can see and modify the **Settings (⚙️)** gear icon.
-2. **Guest Access:** Any visitor can click **"Continue as Guest"** to browse and stream files without an account.
-3. **Normal Users:** Users can Register and Login to their own accounts. However, the **Settings icon is Hidden** for them to prevent unauthorized configuration changes.
-4. **Database Persistence:** All registered user details are securely stored in your connected **NeonDB (Postgres) or MongoDB**.
-5. **Logout Feature:** A dedicated **Logout** button is provided in the top bar to securely end your session at any time.
-
----
-
-## 📸 Screenshots
-
-<p align="center">
-  <i>Modern UI with real-time analytics pinned to the top header</i><br>
-  <i>(Include your screenshots here)</i>
-</p>
+- Admin credentials are set via `ADMIN_USER` and `ADMIN_PASS` environment variables
+- Default: `admin` / `admin123` (change this in HF Secrets!)
+- All registered users stored in the database
 
 ---
 
 ## ⚡ Deployment Guide (Hugging Face Spaces)
 
-Drive Base PRO is highly optimized for Free Cloud Hosting platforms like **Hugging Face Spaces** using their Docker environment.
+### Step 1: Create a Free Database
 
-### Step 1: Create a PostgreSQL or MongoDB Database
-To ensure your connected Google Drives are never lost when Hugging Face restarts the server, you need a free database.
-1. Go to [Neon.tech](https://neon.tech/) and create a Free PostgreSQL database.
-2. Copy the `DATABASE_URL` connection string.
+Go to [neon.tech](https://neon.tech) and create a free PostgreSQL database. Copy the `DATABASE_URL` connection string.
 
-### Step 2: Deploy to Hugging Face (Docker Setup)
-1. Log in to [Hugging Face](https://huggingface.co/) and click **New Space**.
-2. Give your space a name (e.g., `anime-drive-base`).
-3. **CRITICAL STEP:** Under **Select the Space SDK**, choose **Docker**, then select **Blank**.
-4. Set the Space hardware to `Free` and click **Create Space**.
-5. Once created, go to the **Files** tab and click **Add file -> Upload files**. Upload all the files from this repository (most importantly `app.py`, `Dockerfile`, `requirements.txt`, and `preview.html`).
-6. Hugging Face will automatically detect the `Dockerfile` and start building your proxy server.
+> **Alternatively:** Use MongoDB Atlas free tier and set `DATABASE_URL` to your MongoDB URI.
 
-### Step 3: Add Database Secrets
-1. In your Hugging Face Space, click the **Settings** tab.
-2. Scroll down to **Variables and secrets**.
-3. Click **New secret**.
-   - **Name:** `DATABASE_URL`
-   - **Value:** *(Paste your NeonDB or MongoDB URL here)*
-4. **(Optional) Add Admin Credentials:**
-   - **Name:** `ADMIN_USER`
-   - **Value:** *(Your chosen admin username/email)*
-   - **Name:** `ADMIN_PASS`
-   - **Value:** *(Your chosen admin password)*
-5. Click Save. The Space will restart and connect to your database.
+### Step 2: Deploy to Hugging Face
 
-### Step 4: Add Your Google Drive
-1. Open your deployed Drive Base PRO website.
-2. Click the **Settings (⚙)** gear icon.
-3. Go to the **☁ Drives** tab.
-4. Add your Google Drive `Client ID`, `Client Secret`, and `Refresh Token`. (Generate these from Google Cloud Console).
-5. Done! Your files will load instantly and the configuration is saved to your database permanently!
+1. Go to [huggingface.co](https://huggingface.co) → **New Space**
+2. Choose **Docker** SDK → **Blank** template
+3. Upload all files from this repo (`app.py`, `Dockerfile`, `requirements.txt`, `preview.html`)
+4. HF will auto-build from the `Dockerfile`
 
----
+### Step 3: Configure Secrets
 
-## 🌍 Alternative Hosting Platforms
+Go to Space **Settings → Variables and Secrets** and add:
 
-Hugging Face isn't the only place you can host Drive Base PRO. Since this app is fully Dockerized and uses Python FastAPI, you can host it anywhere that supports Docker or Python:
+| Secret Name | Value | Required |
+|---|---|---|
+| `DATABASE_URL` | Your NeonDB / MongoDB URL | ✅ Yes |
+| `ADMIN_USER` | Your admin username | Optional (default: `admin`) |
+| `ADMIN_PASS` | Your admin password | Optional (default: `admin123`) |
+| `APP_SECRET` | Any random string for link signing | Optional |
 
-1. **Koyeb / Render / Railway (PaaS):**
-   - Connect your GitHub repository to Koyeb, Render, or Railway.
-   - They will automatically detect the `Dockerfile` and build the app.
-   - Add your `DATABASE_URL` in their Environment Variables section.
-   
-2. **Private VPS (Contabo, Hetzner, AWS, DigitalOcean):**
-   - Buy a cheap Linux VPS (e.g., Ubuntu).
-   - Clone the repo: `git clone https://github.com/DOTSRIVAL/DriveBase-PRO.git`
-   - Install Docker.
-   - Run the app via Docker:
-     ```bash
-     docker build -t drivebase .
-     docker run -d -p 7860:7860 -e DATABASE_URL="your_db_url_here" drivebase
-     ```
-   - *Advantage:* A private VPS gives you 100% Dedicated Bandwidth, meaning your speeds will be incredibly consistent without relying on free shared servers!
+> ⚠️ `SPACE_HOST` is **automatically set by Hugging Face** — do NOT add it manually!
+
+### Step 4: Setup Google OAuth App
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com)
+2. Create a new project → Enable **Google Drive API**
+3. Go to **APIs & Services → Credentials → Create Credentials → OAuth Client ID**
+4. Application type: **Web Application**
+5. Add to **Authorized Redirect URIs**:
+   ```
+   https://YOUR-SPACE-NAME.hf.space/preview.html
+   ```
+6. Copy the `Client ID` and `Client Secret`
+
+### Step 5: Add Your First Drive
+
+1. Open your DriveBase PRO URL
+2. Login as Admin
+3. Click ⚙️ Settings → **🔑 OAuth App** tab
+4. Enter `Client ID` and `Client Secret` → click **Save OAuth App Settings**
+5. Go to **☁ Drives** tab → click **Add Drive**
+6. Click **🔑 Fill from OAuth App** → credentials auto-fill
+7. Click **Sign in with Google** → choose Gmail account → allow access
+8. Enter a Drive Name → click **Save Drive** → ✅ Done!
 
 ---
 
-## 🔧 Pro Tips for Webmasters (Anime/Movie Sites)
+## 🌍 Alternative Hosting
 
-- **Remote Uploading:** Do you use hosts like Vidmoly, Vidoza, or Streamtape? Just copy the "Direct Download Link" from Drive Base, paste it into the Remote Upload section of those sites, and watch it transfer a 500MB file in under 60 seconds!
-- **Download Managers:** If you share the links directly to users, tell them to use **IDM (Internet Download Manager)** or **ADM (Mobile)**. Drive Base natively supports HTTP `Range` headers, allowing IDM to open 16 parallel connections and skyrocket download speeds up to 48MB/s!
-- **Link Expiry:** Turn on Link Security in the settings and set it to 2 Hours. When you embed the `<video>` on your site, use the newly generated signed URL. It will automatically expire, preventing scrapers from stealing your server bandwidth.
+Since the app is fully Dockerized, you can deploy anywhere:
+
+```bash
+# Clone the repo
+git clone https://github.com/DOTSRIVAL/DriveBase-PRO.git
+cd DriveBase-PRO
+
+# Build and run with Docker
+docker build -t drivebase .
+docker run -d -p 7860:7860 \
+  -e DATABASE_URL="your_db_url" \
+  -e ADMIN_USER="admin" \
+  -e ADMIN_PASS="yourpassword" \
+  drivebase
+```
+
+Works on: **Koyeb, Render, Railway, Contabo VPS, Hetzner, AWS, DigitalOcean**
+
+---
+
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|---|---|
+| Backend | Python 3.11 + FastAPI + asyncio |
+| HTTP Client | httpx (async streaming) |
+| Database | PostgreSQL (psycopg2) or MongoDB (pymongo) |
+| Frontend | Vanilla HTML/CSS/JS (single file) |
+| Auth | Custom JWT-like token + HMAC signing |
+| Hosting | Docker (Hugging Face Spaces) |
+
+---
+
+## 🔧 Pro Tips for Webmasters
+
+- **Remote Upload:** Copy DriveBase direct links and paste into Vidmoly/Vidoza remote upload — transfers 500MB in under 60 seconds!
+- **IDM/ADM Support:** DriveBase supports HTTP `Range` headers, allowing 16 parallel connections — max download speeds!
+- **Link Expiry:** Enable HMAC Link Security in Settings. Embed signed URLs on your site — they expire after X hours, preventing scraping.
+- **Speed Limiter:** Set 1.5 MB/s per user to fairly distribute bandwidth across your audience.
+- **Multiple Drives:** Connect unlimited Gmail accounts, each with its own isolated Google Drive.
 
 ---
 
 ## ⚖️ Disclaimer
 
-This project is a powerful tool designed for personal backups and webmaster file management. Please ensure you comply with Google Drive's Terms of Service and applicable copyright laws when distributing content.
+This project is designed for personal backups and webmaster file management. Please ensure you comply with Google Drive's Terms of Service and applicable copyright laws when distributing content.
 
 ---
-**Author:** DOTSRIVAL
+
+<div align="center">
+  <b>Built with ❤️ by DOTSRIVAL</b><br>
+  <a href="https://github.com/DOTSRIVAL/DriveBase-PRO">GitHub</a>
+</div>
